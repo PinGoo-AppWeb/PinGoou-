@@ -50,31 +50,32 @@ All colors MUST be HSL.
     --brand-dark: 230 45% 12%;
     /* Replacing brand-violet */
 
-    /* Complex Premium Shadows */
-    --shadow-premium: 0 20px 50px -12px rgba(0, 0, 0, 0.08), 0 10px 30px -10px rgba(0, 0, 0, 0.04);
-    --shadow-glow-orange: 0 15px 40px -12px hsl(var(--brand) / 0.45);
-    --shadow-glow-indigo: 0 15px 40px -12px hsl(var(--brand-dark) / 0.15);
-    --shadow-glow-lime: 0 15px 40px -12px hsl(var(--highlight) / 0.35);
+    /* Complex Premium Shadows - More Defined */
+    --shadow-premium: 0 10px 40px -6px rgba(0, 0, 0, 0.12), 0 4px 12px -4px rgba(0, 0, 0, 0.08);
+    --shadow-glow-orange: 0 12px 30px -8px hsl(var(--brand) / 0.5);
+    --shadow-glow-indigo: 0 12px 30px -8px hsl(var(--brand-dark) / 0.25);
+    --shadow-glow-lime: 0 12px 30px -8px hsl(var(--highlight) / 0.45);
 
-    /* Gradients: Optimized for depth and "liquid" feel */
-    --gradient-hero: radial-gradient(1200px circle at 0% 0%, hsl(var(--brand) / 0.12), hsl(var(--background)) 45%),
-      radial-gradient(900px circle at 100% 0%, hsl(var(--brand-dark) / 0.08), hsl(var(--background)) 50%);
+    /* Gradients: Increased opacity and saturation for better depth */
+    --gradient-hero: radial-gradient(1200px circle at 0% 0%, hsl(var(--brand) / 0.18), hsl(var(--background)) 55%),
+      radial-gradient(900px circle at 100% 0%, hsl(var(--brand-dark) / 0.12), hsl(var(--background)) 60%);
 
-    --gradient-splash: radial-gradient(1000px circle at 10% -10%, hsl(var(--highlight)), hsl(var(--background)) 60%),
-      radial-gradient(1000px circle at 90% 20%, hsl(var(--brand-dark)), hsl(var(--background)) 60%);
+    /* splash: focus on higher contrast points */
+    --gradient-splash: radial-gradient(1000px circle at 10% -10%, hsl(var(--highlight) / 1), hsl(var(--background)) 70%),
+      radial-gradient(1000px circle at 90% 20%, hsl(var(--brand-dark) / 1), hsl(var(--background)) 70%);
 
-    /* Premium Color Cards: Subtle Glass + Soft Highlights */
-    --gradient-card-lime: radial-gradient(800px circle at 20% 15%, hsl(var(--highlight) / 0.45), transparent 65%),
-      radial-gradient(600px circle at 100% 0%, hsl(var(--brand-dark) / 0.12), transparent 55%),
-      linear-gradient(135deg, hsl(0 0% 100% / 0.95), hsl(0 0% 100% / 0.85));
+    /* Premium Color Cards: More vibrant Brand Colors */
+    --gradient-card-lime: radial-gradient(800px circle at 20% 15%, hsl(var(--highlight) / 0.6), transparent 70%),
+      radial-gradient(600px circle at 100% 0%, hsl(var(--brand-dark) / 0.15), transparent 60%),
+      linear-gradient(135deg, hsl(0 0% 100% / 0.98), hsl(0 0% 100% / 0.92));
 
-    --gradient-card-indigo: radial-gradient(800px circle at 30% 10%, hsl(var(--brand-dark) / 0.18), transparent 65%),
-      radial-gradient(700px circle at 100% 80%, hsl(var(--highlight) / 0.12), transparent 60%),
-      linear-gradient(135deg, hsl(0 0% 100% / 0.95), hsl(0 0% 100% / 0.85));
+    --gradient-card-indigo: radial-gradient(800px circle at 30% 10%, hsl(var(--brand-dark) / 0.25), transparent 70%),
+      radial-gradient(700px circle at 100% 80%, hsl(var(--highlight) / 0.15), transparent 65%),
+      linear-gradient(135deg, hsl(0 0% 100% / 0.98), hsl(0 0% 100% / 0.92));
 
-    --gradient-card-orange: radial-gradient(800px circle at 20% 15%, hsl(var(--brand) / 0.22), transparent 65%),
-      radial-gradient(700px circle at 100% 70%, hsl(var(--brand-dark) / 0.12), transparent 60%),
-      linear-gradient(135deg, hsl(0 0% 100% / 0.95), hsl(0 0% 100% / 0.85));
+    --gradient-card-orange: radial-gradient(800px circle at 20% 15%, hsl(var(--brand) / 0.3), transparent 70%),
+      radial-gradient(700px circle at 100% 70%, hsl(var(--brand-dark) / 0.15), transparent 65%),
+      linear-gradient(135deg, hsl(0 0% 100% / 0.98), hsl(0 0% 100% / 0.92));
   }
 
   .dark {

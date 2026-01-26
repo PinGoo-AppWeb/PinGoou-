@@ -27,13 +27,13 @@ export const ColorCard = React.forwardRef<HTMLDivElement, Props>(
       ref={ref}
       style={style}
       className={cn(
-        "relative overflow-hidden rounded-3xl border-0 shadow-card",
+        "relative overflow-hidden rounded-[2.5rem] border-0 shadow-card transition-all duration-300",
         toneClass[tone],
         className,
       )}
     >
-      <div className="pointer-events-none absolute inset-0 bg-white/40 backdrop-blur-[2px]" aria-hidden="true" />
-      <div className="relative">{children}</div>
+      <div className="pointer-events-none absolute inset-0 bg-white/10 backdrop-blur-[1px] border border-white/20 rounded-[2.5rem]" aria-hidden="true" />
+      <div className="relative p-0.5">{children}</div>
     </Card>
   ),
 );
