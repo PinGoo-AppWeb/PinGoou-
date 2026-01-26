@@ -1,0 +1,84 @@
+<svg width="4257" height="4257" viewBox="0 0 4257 4257" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!--
+    Animação dentro do SVG.
+    - SMIL (<animateTransform>) costuma ser mais consistente quando o SVG é usado via <img />.
+    - Mantemos CSS como fallback; se o usuário tiver redução de movimento, o browser pode/ não pausar SMIL,
+      então o ideal (se você quiser 100% acessível) é controlarmos isso via React/CSS no container.
+  -->
+  <style>
+    @media (prefers-reduced-motion: reduce) {
+      .bounce, .eyes { animation: none !important; }
+    }
+    .bounce {
+      transform-box: fill-box;
+      transform-origin: center;
+      animation: mascote-bounce 1.9s ease-in-out infinite;
+    }
+    .eyes {
+      transform-box: fill-box;
+      transform-origin: center;
+      animation: eyes-bounce 1.9s ease-in-out infinite;
+    }
+    @keyframes mascote-bounce {
+      0%, 100% { transform: translateY(0); }
+      20% { transform: translateY(-80px); }
+      45% { transform: translateY(0); }
+      62% { transform: translateY(-38px); }
+      78% { transform: translateY(0); }
+    }
+    @keyframes eyes-bounce {
+      0%, 100% { transform: translate(0, 0); }
+      20% { transform: translate(16px, -10px); }
+      45% { transform: translate(0, 0); }
+      62% { transform: translate(-10px, -6px); }
+      78% { transform: translate(0, 0); }
+    }
+  </style>
+
+  <!-- Tudo com pequenos saltos suaves (inclui o quadrado laranja) -->
+  <g class="bounce">
+    <animateTransform
+      attributeName="transform"
+      type="translate"
+      dur="1.9s"
+      repeatCount="indefinite"
+      keyTimes="0;0.2;0.45;0.62;0.78;1"
+      values="0 0; 0 -80; 0 0; 0 -38; 0 0; 0 0"
+      calcMode="spline"
+      keySplines="0.42 0 0.58 1; 0.42 0 0.58 1; 0.42 0 0.58 1; 0.42 0 0.58 1; 0.42 0 0.58 1"
+    />
+
+    <!-- Base do mascote (fundo + rosto) com deslocamento único + escala para reduzir tamanho -->
+    <g transform="translate(0 150)">
+      <!-- escala ao redor do centro do viewBox para manter tudo centralizado -->
+      <g transform="translate(2128.5 2128.5) scale(0.82) translate(-2128.5 -2128.5)">
+        <!-- Fundo: blob redondo e menor -->
+        <circle cx="2128.5" cy="2128.5" r="1750" fill="#FF4D0C" />
+
+        <!-- whites of eyes (mantidos do original) -->
+        <path d="M2127 894C2127 994.516 2045.29 1076 1944.5 1076C1843.71 1076 1762 994.516 1762 894C1762 793.484 1843.71 712 1944.5 712C2045.29 712 2127 793.484 2127 894Z" fill="white"/>
+        <path d="M2423 894C2423 994.516 2341.29 1076 2240.5 1076C2139.71 1076 2058 994.516 2058 894C2058 793.484 2139.71 712 2240.5 712C2341.29 712 2423 793.484 2423 894Z" fill="white"/>
+
+        <!-- pupils: agora em grupo que se mexe junto ao salto -->
+        <g class="eyes">
+        <animateTransform
+          attributeName="transform"
+          type="translate"
+          dur="1.9s"
+          repeatCount="indefinite"
+          keyTimes="0;0.2;0.45;0.62;0.78;1"
+          values="0 0; 16 -10; 0 0; -10 -6; 0 0; 0 0"
+          calcMode="spline"
+          keySplines="0.42 0 0.58 1; 0.42 0 0.58 1; 0.42 0 0.58 1; 0.42 0 0.58 1; 0.42 0 0.58 1"
+        />
+        <path d="M2295 932.5C2295 982.482 2254.26 1023 2204 1023C2153.74 1023 2113 982.482 2113 932.5C2113 882.518 2153.74 842 2204 842C2254.26 842 2295 882.518 2295 932.5Z" fill="#090909"/>
+        <path d="M2071 932.5C2071 982.482 2030.26 1023 1980 1023C1929.74 1023 1889 982.482 1889 932.5C1889 882.518 1929.74 842 1980 842C2030.26 842 2071 882.518 2071 932.5Z" fill="#090909"/>
+        </g>
+
+        <!-- mouth (mantida) -->
+        <path d="M2093 1353C1888.26 1353 1720.14 1242.71 1702.18 1102C1700.43 1088.27 1711.84 1077 1725.72 1077C1739.6 1077 1750.65 1088.29 1753 1101.93C1761.1 1148.86 1792.05 1194.33 1844.5 1231.23C1906.08 1274.53 1993.77 1302.9 2093 1302.9C2192.23 1302.9 2279.93 1274.53 2341.5 1231.23C2393.95 1194.33 2424.9 1148.86 2433 1101.93C2435.35 1088.29 2446.4 1077 2460.28 1077C2474.16 1077 2485.57 1088.27 2483.82 1102C2465.86 1242.71 2297.74 1353 2093 1353Z" fill="black"/>
+        <path d="M2090.03 1371.99C1985.42 1371.55 1889.58 1343.12 1816.99 1296.03C1743.94 1248.65 1693.19 1181.4 1683.34 1103.94C1679.98 1077.53 1701.87 1058 1725.25 1058C1749.97 1058 1767.23 1077.76 1770.78 1098.4C1777.85 1139.5 1805.2 1181.21 1854.7 1216.15C1912.79 1257.15 1996.65 1284.68 2092.5 1284.68C2188.35 1284.68 2272.21 1257.15 2330.3 1216.15C2379.8 1181.21 2407.15 1139.5 2414.22 1098.4C2417.77 1077.76 2435.03 1058 2459.75 1058C2483.13 1058 2505.02 1077.53 2501.66 1103.94C2491.81 1181.4 2441.06 1248.65 2368.01 1296.03C2294.85 1343.49 2198.07 1372 2092.5 1372L2090.03 1371.99ZM2092.5 1353.48C2297.22 1353.48 2465.33 1242.81 2483.29 1101.61L2483.36 1100.96C2484.66 1087.7 2473.76 1076.87 2460.4 1076.53L2459.75 1076.52C2446.08 1076.52 2435.17 1087.5 2432.59 1100.9L2432.47 1101.54C2424.43 1148.27 2393.91 1193.55 2342.2 1230.41L2340.98 1231.28C2279.41 1274.74 2191.72 1303.2 2092.5 1303.2L2090.18 1303.2C1991.91 1302.76 1905.11 1274.4 1844.02 1231.28C1791.57 1194.26 1760.63 1148.64 1752.53 1101.54C1750.21 1088.07 1739.47 1076.88 1725.9 1076.53L1725.25 1076.52C1711.59 1076.52 1700.32 1087.48 1701.64 1100.96L1701.71 1101.61C1719.67 1242.81 1887.77 1353.48 2092.5 1353.48Z" fill="black"/>
+      </g>
+    </g>
+  </g>
+</svg>

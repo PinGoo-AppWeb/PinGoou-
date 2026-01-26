@@ -1,0 +1,67 @@
+<svg width="2978" height="2442" viewBox="0 -120 2978 2562" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Variação: NEUTRO -->
+  <style>
+    @media (prefers-reduced-motion: reduce) {
+      .bounce, .eyes { animation: none !important; }
+    }
+    .bounce {
+      transform-box: fill-box;
+      transform-origin: center;
+      animation: mascote-bounce 1.9s ease-in-out infinite;
+    }
+    .eyes {
+      transform-box: fill-box;
+      transform-origin: center;
+      animation: eyes-bounce 1.9s ease-in-out infinite;
+    }
+    @keyframes mascote-bounce {
+      0%, 100% { transform: translateY(0); }
+      20% { transform: translateY(-80px); }
+      45% { transform: translateY(0); }
+      62% { transform: translateY(-38px); }
+      78% { transform: translateY(0); }
+    }
+    @keyframes eyes-bounce {
+      0%, 100% { transform: translate(0, 0); }
+      20% { transform: translate(16px, -10px); }
+      45% { transform: translate(0, 0); }
+      62% { transform: translate(-10px, -6px); }
+      78% { transform: translate(0, 0); }
+    }
+  </style>
+
+  <g class="bounce">
+    <animateTransform
+      attributeName="transform"
+      type="translate"
+      dur="1.9s"
+      repeatCount="indefinite"
+      keyTimes="0;0.2;0.45;0.62;0.78;1"
+      values="0 0; 0 -80; 0 0; 0 -38; 0 0; 0 0"
+      calcMode="spline"
+      keySplines="0.42 0 0.58 1; 0.42 0 0.58 1; 0.42 0 0.58 1; 0.42 0 0.58 1; 0.42 0 0.58 1"
+    />
+
+    <path d="M0 2442V980C0 430 430 0 980 0H1820C2480 0 2978 520 2978 1180V1460C2978 2140 2410 2442 1820 2442H0Z" fill="#FF4D0C" />
+    <path d="M1475 910.5C1475 1038.91 1370.91 1143 1242.5 1143C1114.09 1143 1010 1038.91 1010 910.5C1010 782.094 1114.09 678 1242.5 678C1370.91 678 1475 782.094 1475 910.5Z" fill="white"/>
+    <path d="M1849 910.5C1849 1038.91 1744.91 1143 1616.5 1143C1488.09 1143 1384 1038.91 1384 910.5C1384 782.094 1488.09 678 1616.5 678C1744.91 678 1849 782.094 1849 910.5Z" fill="white"/>
+
+    <g class="eyes">
+      <animateTransform
+        attributeName="transform"
+        type="translate"
+        dur="1.9s"
+        repeatCount="indefinite"
+        keyTimes="0;0.2;0.45;0.62;0.78;1"
+        values="0 0; 16 -10; 0 0; -10 -6; 0 0; 0 0"
+        calcMode="spline"
+        keySplines="0.42 0 0.58 1; 0.42 0 0.58 1; 0.42 0 0.58 1; 0.42 0 0.58 1; 0.42 0 0.58 1"
+      />
+      <path d="M1680 956C1680 1009.02 1637.02 1052 1584 1052C1530.98 1052 1488 1009.02 1488 956C1488 902.981 1530.98 860 1584 860C1637.02 860 1680 902.981 1680 956Z" fill="black"/>
+      <path d="M1370 956C1370 1009.02 1327.02 1052 1274 1052C1220.98 1052 1178 1009.02 1178 956C1178 902.981 1220.98 860 1274 860C1327.02 860 1370 902.981 1370 956Z" fill="black"/>
+    </g>
+
+    <!-- Boca neutra (linha suave) -->
+    <path d="M1128 1390C1270 1448 1503 1448 1736 1390" stroke="black" stroke-width="74" stroke-linecap="round" fill="none"/>
+  </g>
+</svg>

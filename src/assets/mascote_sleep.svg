@@ -1,0 +1,12 @@
+<svg width="2978" height="2442" viewBox="0 0 2978 2442" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Estado: DORMINDO (sem bounce) -->
+  <!-- Corpo (mesmo do mascote_normal.svg) -->
+  <path d="M2978 1489C2978 2311.35 2311.35 2442 1489 2442C666.648 2442 0 2311.35 0 1489C0 666.648 666.648 0 1489 0C2311.35 0 2978 666.648 2978 1489Z" fill="#FF4D0C"/>
+
+  <!-- Olhos fechados (linhas arqueadas, curvas para baixo) -->
+  <path d="M900 930 Q1006 1020 1112 930" stroke="black" stroke-width="74" stroke-linecap="round" fill="none"/>
+  <path d="M2036 930 Q2142 1020 2248 930" stroke="black" stroke-width="74" stroke-linecap="round" fill="none"/>
+
+  <!-- Boca esticada (linha reta) -->
+  <path class="sleep-mouth" d="M1240 1270 L1738 1270" stroke="black" stroke-width="74" stroke-linecap="round" fill="none"/>
+</svg>
