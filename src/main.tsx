@@ -7,9 +7,10 @@ import { registerSW } from "virtual:pwa-register";
 registerSW({
     immediate: true,
     onNeedRefresh() {
-        if (confirm("Nova versão disponível! Atualizar agora?")) {
-            window.location.reload();
-        }
+        window.location.reload();
+    },
+    onOfflineReady() {
+        console.log('App ready to work offline');
     },
 });
 
