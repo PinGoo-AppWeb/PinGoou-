@@ -398,7 +398,7 @@ export default function NewSale() {
         <OnboardingStepCard step={step} />
         <SalesFlowStepper title={stepLabel(step)} current={current} total={steps.length} stepsLabels={steps.map(stepLabel)} canBack={current !== 0} onBack={goBack} />
 
-        <div className="relative min-h-[280px] overflow-hidden">
+        <div className="relative min-h-[500px]">
           {bottomStack.length > 0 && (
             <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-32 overflow-hidden">
               <div className="relative h-full">
