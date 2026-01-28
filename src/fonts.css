@@ -1,6 +1,12 @@
 /* 
  * Fontes Self-Hosted via Google Fonts
  * Solução para problemas de cache no mobile
+ * 
+ * IMPORTANTE:
+ * - font-display: swap = Mostra fallback primeiro, depois troca pela fonte custom
+ * - crossorigin no preload = Necessário para CORS
+ * - woff2 = Formato moderno com melhor compressão
+ * - unicode-range = Carrega apenas caracteres necessários
  */
 
 /* Inter - Regular (400) */

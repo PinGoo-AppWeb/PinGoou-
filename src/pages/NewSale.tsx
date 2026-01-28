@@ -226,10 +226,10 @@ export default function NewSale() {
                         setItems((prev) => {
                           const idx = prev.findIndex((it) => it.productId === p.id);
                           if (idx >= 0) {
-                            const next = [...prev];
-                            next[idx] = { ...next[idx], qty: Math.min(999, next[idx].qty + 1) };
-                            return next;
+                            // Se já está selecionado, remove da lista
+                            return prev.filter((it) => it.productId !== p.id);
                           }
+                          // Se não está selecionado, adiciona com quantidade 1
                           return [...prev, { productId: p.id, qty: 1 }];
                         });
                       }}
@@ -244,8 +244,8 @@ export default function NewSale() {
                           <p className="mt-1 text-xs text-muted-foreground">{formatBRL(p.price)}</p>
                         </div>
                         {active && (
-                          <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-primary-foreground text-[10px] font-bold">
-                            {qtyInCart}
+                          <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                            <Check className="h-4 w-4" />
                           </div>
                         )}
                       </div>
@@ -273,7 +273,7 @@ export default function NewSale() {
         <ColorCard tone="indigo">
           <div className="p-4">
             <h1 className="text-base font-semibold tracking-tight">Quantidade</h1>
-            <div className="mt-4 grid gap-2">
+            <div className="mt-4 grid gap-2 max-h-[300px] overflow-y-auto pr-1">
               {items.map((it) => {
                 const p = productsById.get(it.productId);
                 if (!p) return null;
@@ -398,7 +398,7 @@ export default function NewSale() {
         <OnboardingStepCard step={step} />
         <SalesFlowStepper title={stepLabel(step)} current={current} total={steps.length} stepsLabels={steps.map(stepLabel)} canBack={current !== 0} onBack={goBack} />
 
-        <div className="relative min-h-[600px] overflow-hidden">
+        <div className="relative overflow-hidden">
           {bottomStack.length > 0 && (
             <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-32 overflow-hidden">
               <div className="relative h-full">
@@ -422,7 +422,7 @@ export default function NewSale() {
             </div>
           )}
 
-          <div className="absolute inset-x-0 top-0 z-30">
+          <div className="relative z-30">
             <div className="mx-auto w-full max-w-md">
               <div key={step} className={cn("transition-all duration-500", enterFromRight ? "animate-slide-in-right" : "animate-fade-in")}>
                 {renderStepContent(step)}
@@ -432,7 +432,7 @@ export default function NewSale() {
         </div>
 
         {!isLastStep && (
-          <div className="pt-2">
+          <div className="mt-4">
             <Button
               className="w-full h-16 rounded-3xl text-lg shadow-hero active:scale-95 transition-all"
               variant="hero"

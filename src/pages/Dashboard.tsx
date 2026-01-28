@@ -3,16 +3,16 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ShoppingBag, Wallet, TrendingDown, Users, Loader2, Pencil, Trash2, History, AlertCircle } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { formatBRL, paymentMethods } from "@/lib/pdv-data";
+import { formatBRL } from "@/lib/pdv-data";
 import { useDashboardStats } from "@/hooks/use-dashboard-stats";
 import { useSales, type Sale } from "@/hooks/use-sales";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
+import { EditSaleModal } from "@/components/pdv/EditSaleModal";
+import { useProducts } from "@/hooks/use-products";
 
 type Filter = "dia" | "mes" | "ano";
 
@@ -29,7 +29,8 @@ function makeSeries(filter: Filter) {
 export default function Dashboard() {
   const [filter, setFilter] = useState<Filter>("dia");
   const { faturamentoHoje, totalMes, vendasHoje, ticketMedio, custosMes, lucroMes, loading: loadingStats, refresh: refreshStats } = useDashboardStats();
-  const { fetchSales, updateSale, deleteSale, loading: loadingSales } = useSales();
+  const { fetchSales, deleteSale, loading: loadingSales } = useSales();
+  const { products } = useProducts();
 
   const [sales, setSales] = useState<Sale[]>([]);
   const [editingSale, setEditingSale] = useState<Sale | null>(null);
@@ -54,16 +55,11 @@ export default function Dashboard() {
     }
   };
 
-  const handleUpdate = async (id: string, newMethod: string) => {
-    const success = await updateSale(id, { payment_method: newMethod });
-    if (success) {
-      toast.success("Forma de pagamento atualizada");
-      setEditingSale(null);
-      loadSales();
-      refreshStats();
-    } else {
-      toast.error("Erro ao atualizar venda");
-    }
+  const handleSaveEdit = () => {
+    toast.success("Venda atualizada com sucesso!");
+    setEditingSale(null);
+    loadSales();
+    refreshStats();
   };
 
   const data = useMemo(() => makeSeries(filter), [filter]);
@@ -232,50 +228,14 @@ export default function Dashboard() {
           </Card>
         </section>
 
-        {/* Modal de Edição */}
-        <Dialog open={!!editingSale} onOpenChange={(open) => !open && setEditingSale(null)}>
-          <DialogContent className="sm:max-w-md border-none bg-background/95 backdrop-blur-xl rounded-3xl">
-            <DialogHeader>
-              <DialogTitle>Editar Venda</DialogTitle>
-              <DialogDescription>
-                Altere a forma de pagamento desta venda.
-              </DialogDescription>
-            </DialogHeader>
-            {editingSale && (
-              <div className="py-4 space-y-4">
-                <div className="space-y-2">
-                  <Label>Forma de Pagamento</Label>
-                  <Select
-                    defaultValue={editingSale.payment_method}
-                    onValueChange={(v) => handleUpdate(editingSale.id, v)}
-                  >
-                    <SelectTrigger className="h-12 rounded-2xl bg-secondary/50 border-none">
-                      <SelectValue placeholder="Selecione" />
-                    </SelectTrigger>
-                    <SelectContent className="rounded-2xl border-none shadow-premium">
-                      {paymentMethods.map(m => (
-                        <SelectItem key={m} value={m} className="rounded-xl">{m}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="flex justify-between p-4 bg-primary/5 rounded-2xl border border-primary/10">
-                  <span className="text-xs font-semibold text-muted-foreground">Valor Total</span>
-                  <span className="text-sm font-bold text-primary">{formatBRL(editingSale.total)}</span>
-                </div>
-              </div>
-            )}
-            <DialogFooter>
-              <Button
-                variant="outline"
-                className="w-full h-12 rounded-2xl"
-                onClick={() => setEditingSale(null)}
-              >
-                Fechar
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        {/* Modal de Edição Completo */}
+        <EditSaleModal
+          sale={editingSale}
+          open={!!editingSale}
+          onClose={() => setEditingSale(null)}
+          onSave={handleSaveEdit}
+          products={products}
+        />
       </section>
     </main>
   );

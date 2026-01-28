@@ -54,6 +54,7 @@ export const clearFontCache = async (): Promise<void> => {
 
 /**
  * Verificar se as fontes estão carregadas
+ * Verifica todos os pesos importantes de Inter e Outfit
  */
 export const checkFontsLoaded = async (): Promise<boolean> => {
     try {
@@ -62,15 +63,38 @@ export const checkFontsLoaded = async (): Promise<boolean> => {
             return false;
         }
 
-        // Verificar se Inter e Outfit estão carregadas
-        const inter = await document.fonts.check('12px Inter');
-        const outfit = await document.fonts.check('12px Outfit');
+        // Aguardar o carregamento de todas as fontes
+        await document.fonts.ready;
+
+        // Verificar múltiplos pesos de Inter
+        const interWeights = [400, 500, 600, 700];
+        const interResults = await Promise.all(
+            interWeights.map(async (weight) => {
+                const loaded = await document.fonts.check(`${weight} 12px Inter`);
+                console.log(`  - Inter ${weight}:`, loaded ? '✅ Carregada' : '❌ Não carregada');
+                return loaded;
+            })
+        );
+
+        // Verificar múltiplos pesos de Outfit
+        const outfitWeights = [500, 600, 700, 800];
+        const outfitResults = await Promise.all(
+            outfitWeights.map(async (weight) => {
+                const loaded = await document.fonts.check(`${weight} 12px Outfit`);
+                console.log(`  - Outfit ${weight}:`, loaded ? '✅ Carregada' : '❌ Não carregada');
+                return loaded;
+            })
+        );
 
         console.log('📊 Status das fontes:');
-        console.log('  - Inter:', inter ? '✅ Carregada' : '❌ Não carregada');
-        console.log('  - Outfit:', outfit ? '✅ Carregada' : '❌ Não carregada');
+        const allInterLoaded = interResults.every(r => r);
+        const allOutfitLoaded = outfitResults.every(r => r);
 
-        return inter && outfit;
+        console.log(`  - Inter: ${allInterLoaded ? '✅ Todas carregadas' : '⚠️ Algumas faltando'}`);
+        console.log(`  - Outfit: ${allOutfitLoaded ? '✅ Todas carregadas' : '⚠️ Algumas faltando'}`);
+
+        // Retorna true apenas se TODAS as fontes estiverem carregadas
+        return allInterLoaded && allOutfitLoaded;
     } catch (error) {
         console.error('❌ Erro ao verificar fontes:', error);
         return false;
