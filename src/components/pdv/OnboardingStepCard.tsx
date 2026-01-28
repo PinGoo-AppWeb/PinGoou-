@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import { PartyPopper, Sparkles, Wand2, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
-type Step = "produto" | "quantidade" | "pagamento" | "delivery" | "confirmar";
+type Step = "produto" | "quantidade" | "pagamento" | "delivery" | "data" | "confirmar";
 
 type Props = {
   step: Step;
@@ -56,6 +56,12 @@ export function OnboardingStepCard({ step, className }: Props) {
           icon: Wand2,
           title: "Vai de motoboy?",
           text: "Se for delivery, a taxa entra sozinha no total.",
+        };
+      case "data":
+        return {
+          icon: Sparkles,
+          title: "Quando foi a venda?",
+          text: "Hoje ou retroativa? Escolha a data certa pro registro.",
         };
       case "confirmar":
       default:

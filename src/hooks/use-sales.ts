@@ -14,6 +14,7 @@ export type CreateSaleData = {
     payment_method: string;
     is_delivery: boolean;
     items: SaleItem[];
+    sale_date?: Date; // Data da venda (opcional, padrão: agora)
 };
 
 export type Sale = {
@@ -58,6 +59,7 @@ export function useSales() {
                 taxa_delivery: saleData.taxa_delivery,
                 payment_method: saleData.payment_method,
                 is_delivery: saleData.is_delivery,
+                ...(saleData.sale_date && { created_at: saleData.sale_date.toISOString() }),
             })
             .select()
             .single();

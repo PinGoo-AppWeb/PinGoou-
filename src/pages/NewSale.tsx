@@ -13,19 +13,21 @@ import { useProducts } from "@/hooks/use-products";
 import { useSales } from "@/hooks/use-sales";
 import { useProfile } from "@/hooks/use-profile";
 import { setLastSaleNow } from "@/lib/sale-activity";
+import { SaleDateSelector } from "@/components/pdv/SaleDateSelector";
 
 type Item = {
   productId: string;
   qty: number;
 };
 
-type Step = "produto" | "quantidade" | "pagamento" | "delivery" | "confirmar";
+type Step = "produto" | "quantidade" | "pagamento" | "delivery" | "data" | "confirmar";
 
 function toneForStep(step: Step) {
   if (step === "produto") return "lime" as const;
   if (step === "quantidade") return "indigo" as const;
   if (step === "pagamento") return "orange" as const;
   if (step === "delivery") return "indigo" as const;
+  if (step === "data") return "indigo" as const;
   return "lime" as const;
 }
 
@@ -34,11 +36,12 @@ function stepLabel(step: Step) {
   if (step === "quantidade") return "Quantidade";
   if (step === "pagamento") return "Pagamento";
   if (step === "delivery") return "Delivery";
+  if (step === "data") return "Data";
   return "Confirmar";
 }
 
 function stepIndex(step: Step) {
-  return ["produto", "quantidade", "pagamento", "delivery", "confirmar"].indexOf(step);
+  return ["produto", "quantidade", "pagamento", "delivery", "data", "confirmar"].indexOf(step);
 }
 
 export default function NewSale() {
@@ -50,6 +53,7 @@ export default function NewSale() {
   const [items, setItems] = useState<Item[]>([]);
   const [payment, setPayment] = useState(paymentMethods[0]);
   const [delivery, setDelivery] = useState(false);
+  const [saleDate, setSaleDate] = useState<Date>(new Date());
 
   const productsById = useMemo(() => new Map(products.map((p) => [p.id, p])), [products]);
   const subtotal = useMemo(() => {
@@ -61,15 +65,16 @@ export default function NewSale() {
   const taxaDelivery = useMemo(() => (delivery ? 6 : 0), [delivery]);
   const total = useMemo(() => subtotal + taxaDelivery, [subtotal, taxaDelivery]);
 
-  const steps: Step[] = useMemo(() => ["produto", "quantidade", "pagamento", "delivery", "confirmar"], []);
+  const steps: Step[] = useMemo(() => ["produto", "quantidade", "pagamento", "delivery", "data", "confirmar"], []);
   const current = stepIndex(step);
   const canNext = useMemo(() => {
     if (step === "produto") return items.length > 0;
     if (step === "quantidade") return items.length > 0 && items.every((it) => it.qty >= 1);
     if (step === "pagamento") return Boolean(payment);
     if (step === "delivery") return true;
+    if (step === "data") return Boolean(saleDate);
     return true;
-  }, [step, items, payment]);
+  }, [step, items, payment, saleDate]);
 
   const [enterFromRight, setEnterFromRight] = useState(false);
   const [enterKey, setEnterKey] = useState(0);
@@ -178,7 +183,8 @@ export default function NewSale() {
       taxa_delivery: taxaDelivery,
       payment_method: payment,
       is_delivery: delivery,
-      items: saleItems
+      items: saleItems,
+      sale_date: saleDate,
     });
 
     if (result) {
@@ -334,6 +340,16 @@ export default function NewSale() {
       );
     }
 
+    if (s === "data") {
+      return (
+        <SaleDateSelector
+          selectedDate={saleDate}
+          onDateChange={(date) => date && setSaleDate(date)}
+          onUseToday={() => setSaleDate(new Date())}
+        />
+      );
+    }
+
     return (
       <ColorCard tone="lime">
         <div className="p-4">
@@ -366,6 +382,11 @@ export default function NewSale() {
     if (s === "quantidade") return `${items.reduce((a, b) => a + b.qty, 0)} itens`;
     if (s === "pagamento") return payment;
     if (s === "delivery") return delivery ? "Sim" : "Não";
+    if (s === "data") {
+      const today = new Date();
+      const isToday = saleDate.toDateString() === today.toDateString();
+      return isToday ? "Hoje" : saleDate.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
+    }
     return formatBRL(total);
   };
 
