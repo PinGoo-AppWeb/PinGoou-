@@ -16,6 +16,7 @@ import { supabase } from "@/lib/supabase";
 import { useNavigate } from "react-router-dom";
 import { formatBRL } from "@/lib/pdv-data";
 import { cn } from "@/lib/utils";
+import { PremiumUpgradeModal } from "@/components/subscription/PremiumUpgradeModal";
 
 
 export default function Settings() {
@@ -39,6 +40,7 @@ export default function Settings() {
   const [resetDataOpen, setResetDataOpen] = useState(false);
   const [resetConfirmText, setResetConfirmText] = useState("");
   const [isUploading, setIsUploading] = useState(false);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
   useEffect(() => {
     if (profile) {
@@ -175,6 +177,13 @@ export default function Settings() {
       return;
     }
 
+    // Verificar se usuário é freemium e já usou o reset (Exemplo: limite de 1 reset)
+    if ((profile?.data_reset_count || 0) >= 1) {
+      setResetDataOpen(false);
+      setShowUpgradeModal(true);
+      return;
+    }
+
     try {
       setIsSaving(true);
       console.log("Iniciando limpeza total de dados (Políticas Corrigidas)");
@@ -209,6 +218,9 @@ export default function Settings() {
       console.log("Deletando histórico de delivery...");
       const { error: e4 } = await supabase.from("delivery_work_days").delete().eq("user_id", user.id);
       if (e4) throw e4;
+
+      // Incrementar contador de reset
+      await updateProfile({ data_reset_count: (profile?.data_reset_count || 0) + 1 });
 
       toast.success("Limpeza concluída! O app está como novo.");
       setResetDataOpen(false);
@@ -562,6 +574,13 @@ export default function Settings() {
           </DialogContent>
         </Dialog>
       </section>
+
+      <PremiumUpgradeModal
+        open={showUpgradeModal}
+        onOpenChange={setShowUpgradeModal}
+        title="Limite do Plano Grátis"
+        description="Você já usou sua chance única de zerar dados gratuitamente. Para limpar novamente, faça upgrade para o PRO!"
+      />
     </main>
   );
 }

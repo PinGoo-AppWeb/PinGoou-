@@ -13,6 +13,7 @@ export type Profile = {
     card_rate_credit: number;
     card_rate_debit: number;
     avatar_url: string | null;
+    data_reset_count: number;
 };
 
 export function useProfile() {
