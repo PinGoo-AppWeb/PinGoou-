@@ -1,4 +1,4 @@
-/* CSS Version: 2026-01-28-10:24 - font-mono-numbers class added */
+/* CSS Version: 2026-01-28-10:42 - Mobile-friendly monospace fonts (SF Mono, Roboto Mono) */
 @import './fonts.css';
 
 @tailwind base;
@@ -173,9 +173,11 @@ All colors MUST be HSL.
   }
 
   /* Classe para valores numéricos em cards - usa fonte monospace */
+  /* Stack otimizada para mobile: SF Mono (iOS), Roboto Mono (Android), Menlo (macOS), Consolas (Windows) */
   .font-mono-numbers {
-    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    font-family: ui-monospace, 'SF Mono', 'Roboto Mono', 'Menlo', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', monospace;
     font-variant-numeric: tabular-nums;
     letter-spacing: -0.01em;
+    font-feature-settings: "tnum" 1;
   }
 }
