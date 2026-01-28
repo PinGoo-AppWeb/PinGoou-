@@ -177,59 +177,51 @@ export default function Settings() {
 
     try {
       setIsSaving(true);
-      console.log("Iniciando limpeza total de dados para o usuário:", user.id);
+      console.log("Iniciando limpeza total de dados (Políticas Corrigidas)");
 
-      // 1. Limpar produtos (afeta sale_items por FK se não for cascade)
-      // Primeiro vamos limpar os itens de venda de todas as vendas do usuário
-      // Para garantir, vamos deletar direto das tabelas filtrando pelo usuário onde possível
+      // 1. Buscar vendas
+      const { data: vSales, error: fError } = await supabase
+        .from("sales")
+        .select("id")
+        .eq("user_id", user.id);
 
-      console.log("Limpando itens de venda...");
-      // Como sale_items não tem user_id direto, precisamos buscar as vendas
-      const { data: vSales } = await supabase.from("sales").select("id").eq("user_id", user.id);
+      if (fError) throw fError;
       const vSaleIds = vSales?.map(s => s.id) || [];
 
+      // 2. Limpar itens de venda (Ordem crítica para FK)
       if (vSaleIds.length > 0) {
+        console.log("Deletando itens de venda...");
         const { error: e1 } = await supabase.from("sale_items").delete().in("sale_id", vSaleIds);
-        if (e1) {
-          console.error("Erro ao limpar sale_items:", e1);
-          throw e1;
-        }
+        if (e1) throw e1;
       }
 
-      console.log("Limpando vendas...");
+      // 3. Limpar vendas
+      console.log("Deletando vendas...");
       const { error: e2 } = await supabase.from("sales").delete().eq("user_id", user.id);
-      if (e2) {
-        console.error("Erro ao limpar sales:", e2);
-        throw e2;
-      }
+      if (e2) throw e2;
 
-      console.log("Limpando produtos...");
+      // 4. Limpar produtos
+      console.log("Deletando produtos...");
       const { error: e3 } = await supabase.from("products").delete().eq("user_id", user.id);
-      if (e3) {
-        console.error("Erro ao limpar products:", e3);
-        throw e3;
-      }
+      if (e3) throw e3;
 
-      console.log("Limpando dias de delivery...");
+      // 5. Limpar histórico de delivery
+      console.log("Deletando histórico de delivery...");
       const { error: e4 } = await supabase.from("delivery_work_days").delete().eq("user_id", user.id);
-      if (e4) {
-        console.error("Erro ao limpar delivery_work_days:", e4);
-        throw e4;
-      }
+      if (e4) throw e4;
 
-      console.log("Limpeza concluída com sucesso!");
-      toast.success("Todos os seus dados foram apagados.");
+      toast.success("Limpeza concluída! O app está como novo.");
       setResetDataOpen(false);
       setResetConfirmText("");
 
-      // Recarregar a página para resetar todos os estados
+      // Cache-busting reload
       setTimeout(() => {
-        window.location.reload();
-      }, 800);
+        window.location.href = window.location.origin + "/dashboard?reset=true";
+      }, 1000);
 
     } catch (error: any) {
-      console.error("ERRO CRÍTICO NO RESET:", error);
-      toast.error("Falha ao zerar: " + (error.message || "Erro desconhecido"));
+      console.error("ERRO NO RESET:", error);
+      toast.error("Erro inesperado: " + (error.message || "Verifique sua conexão"));
     } finally {
       setIsSaving(false);
     }
