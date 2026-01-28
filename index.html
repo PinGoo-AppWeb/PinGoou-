@@ -9,11 +9,11 @@
   <meta name="author" content="PinGoou" />
 
   <!-- Preload de fontes críticas para evitar FOUT (Flash of Unstyled Text) -->
-  <!-- Google Fonts - Link Direto com cache busting v=4 -->
+  <!-- Google Fonts - Link Direto com cache busting v=5 -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap&v=4"
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap&v=5"
     rel="stylesheet">
 
   <!-- Force font loading script -->
@@ -21,9 +21,8 @@
     if ('fonts' in document) {
       const fontsToLoad = [
         { family: 'Inter', url: 'https://fonts.gstatic.com/s/inter/v18/UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuLyfAZ9hiA.woff2', weight: '400' },
-        { family: 'Inter', url: 'https://fonts.gstatic.com/s/inter/v18/UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuFuYAZ9hiA.woff2', weight: '700' },
-        { family: 'Outfit', url: 'https://fonts.gstatic.com/s/outfit/v11/QGYyz_MVcBeNP4NjuGObqx1XmO1I4TC0C4G-EiAou6Y.woff2', weight: '500' },
-        { family: 'Outfit', url: 'https://fonts.gstatic.com/s/outfit/v11/QGYyz_MVcBeNP4NjuGObqx1XmO1I4em1C4G-EiAou6Y.woff2', weight: '800' }
+        { family: 'Outfit', url: 'https://fonts.gstatic.com/s/outfit/v11/QGYyz_MVcBeNP4NjuGObqx1XmO1I4em1C4G-EiAou6Y.woff2', weight: '800' },
+        { family: 'JetBrains Mono', url: 'https://fonts.gstatic.com/s/jetbrainsmono/v18/t6fqA6taJv0Y.woff2', weight: '500' }
       ];
 
       Promise.all(fontsToLoad.map(f => {

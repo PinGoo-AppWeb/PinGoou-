@@ -171,11 +171,11 @@ All colors MUST be HSL.
     }
   }
 
-  /* Classe para valores numéricos em cards - Identidade Visual PinGoou */
+  /* Classe para valores numéricos em cards - Identidade Visual PinGoou (Com charm do zero cortado) */
   .font-mono-numbers {
-    font-family: 'Outfit', 'Inter', ui-monospace, 'SF Mono', 'Roboto Mono', monospace;
+    font-family: 'JetBrains Mono', 'Outfit', ui-monospace, monospace;
     font-variant-numeric: tabular-nums;
     letter-spacing: -0.01em;
-    font-feature-settings: "tnum" 1;
+    font-feature-settings: "tnum" 1, "zero";
   }
 }

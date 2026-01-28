@@ -132,7 +132,7 @@ export default function Dashboard() {
                   <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{c.label}</p>
                   <c.icon className="h-4 w-4 text-primary" />
                 </div>
-                <p className="mt-2 text-xl font-extrabold tracking-tight font-mono-numbers">{c.value}</p>
+                <p className="mt-2 text-xl font-semibold tracking-tight font-mono-numbers">{c.value}</p>
               </div>
             </Card>
           ))}
@@ -202,7 +202,7 @@ export default function Dashboard() {
                       </div>
 
                       <div className="flex items-center gap-4">
-                        <p className="text-sm font-extrabold font-mono-numbers">{formatBRL(sale.total)}</p>
+                        <p className="text-sm font-semibold font-mono-numbers">{formatBRL(sale.total)}</p>
 
                         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                           <button
