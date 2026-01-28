@@ -1,0 +1,25 @@
+<svg width="400" height="400" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <pattern id="organic-pattern" x="0" y="0" width="400" height="400" patternUnits="userSpaceOnUse">
+      <!-- Linhas orgânicas curvas -->
+      <path d="M0,50 Q100,30 200,50 T400,50" stroke="rgba(120, 200, 100, 0.08)" stroke-width="1.5" fill="none"/>
+      <path d="M0,150 Q80,170 160,150 T320,150" stroke="rgba(120, 200, 100, 0.06)" stroke-width="1" fill="none"/>
+      <path d="M50,0 Q70,100 50,200 T50,400" stroke="rgba(120, 200, 100, 0.05)" stroke-width="1" fill="none"/>
+      <path d="M250,0 Q230,120 250,240 T250,400" stroke="rgba(120, 200, 100, 0.07)" stroke-width="1.5" fill="none"/>
+      
+      <!-- Círculos sutis -->
+      <circle cx="80" cy="80" r="30" stroke="rgba(120, 200, 100, 0.04)" stroke-width="1" fill="none"/>
+      <circle cx="320" cy="200" r="40" stroke="rgba(120, 200, 100, 0.05)" stroke-width="1" fill="none"/>
+      <circle cx="150" cy="300" r="25" stroke="rgba(120, 200, 100, 0.03)" stroke-width="1" fill="none"/>
+      
+      <!-- Formas orgânicas (tipo folhas/gotas) -->
+      <path d="M100,250 Q120,230 140,250 Q120,270 100,250 Z" stroke="rgba(120, 200, 100, 0.06)" stroke-width="1" fill="rgba(120, 200, 100, 0.02)"/>
+      <path d="M300,100 Q310,80 320,100 Q310,120 300,100 Z" stroke="rgba(120, 200, 100, 0.05)" stroke-width="1" fill="rgba(120, 200, 100, 0.015)"/>
+      
+      <!-- Linhas diagonais suaves -->
+      <path d="M0,300 Q100,280 200,300 T400,300" stroke="rgba(120, 200, 100, 0.04)" stroke-width="1" fill="none"/>
+      <path d="M0,380 Q120,360 240,380 T400,380" stroke="rgba(120, 200, 100, 0.03)" stroke-width="0.5" fill="none"/>
+    </pattern>
+  </defs>
+  <rect width="400" height="400" fill="url(#organic-pattern)"/>
+</svg>

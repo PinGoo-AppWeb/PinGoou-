@@ -1,10 +1,10 @@
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ShoppingBag, Wallet, TrendingDown, Users, Loader2, Pencil, Trash2, History, AlertCircle } from "lucide-react";
+import { ShoppingBag, Wallet, TrendingDown, Users, Loader2, Pencil, Trash2, History, AlertCircle, Calendar } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { formatBRL } from "@/lib/pdv-data";
-import { useDashboardStats } from "@/hooks/use-dashboard-stats";
+import { useFilteredStats, FilterPeriod } from "@/hooks/use-filtered-stats"; // Use o novo hook
 import { useSales, type Sale } from "@/hooks/use-sales";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -14,6 +14,20 @@ import { toast } from "sonner";
 import { EditSaleModal } from "@/components/pdv/EditSaleModal";
 import { useProducts } from "@/hooks/use-products";
 import { cn } from "@/lib/utils";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+
+const PERIOD_LABELS: Record<FilterPeriod, string> = {
+  today: "Hoje",
+  yesterday: "Ontem",
+  month: "Este Mês",
+  year: "Este Ano",
+  custom: "Personalizado"
+};
 
 type Filter = "dia" | "mes" | "ano";
 
@@ -28,8 +42,19 @@ function makeSeries(filter: Filter) {
 }
 
 export default function Dashboard() {
-  const [filter, setFilter] = useState<Filter>("dia");
-  const { faturamentoHoje, totalMes, vendasHoje, ticketMedio, custosMes, lucroMes, loading: loadingStats, refresh: refreshStats } = useDashboardStats();
+  const [period, setPeriod] = useState<FilterPeriod>("today"); // Default para Hoje no Dashboard
+
+  // Usar o hook filtrado em vez do estático
+  const {
+    totalRevenue,
+    totalSales,
+    ticketAverage,
+    totalCosts,
+    netProfit,
+    loading: loadingStats,
+    refresh: refreshStats
+  } = useFilteredStats(period);
+
   const { fetchSales, deleteSale, loading: loadingSales } = useSales();
   const { products } = useProducts();
 
@@ -37,6 +62,9 @@ export default function Dashboard() {
   const [editingSale, setEditingSale] = useState<Sale | null>(null);
 
   const loadSales = async () => {
+    // TODO: Idealmente, filtrar sales também pelo período. 
+    // Por enquanto, fetchSales traz tudo. Vamos manter assim para o histórico visual,
+    // ou futuramente filtrar a lista de histórico também.
     const data = await fetchSales();
     setSales(data);
   };
@@ -86,20 +114,21 @@ export default function Dashboard() {
     refreshStats();
   };
 
-  const data = useMemo(() => makeSeries(filter), [filter]);
+  // Mock series para o gráfico (manter visual por enquanto)
+  const data = useMemo(() => makeSeries("dia"), []);
 
   const cards = useMemo(
     () => [
-      { label: "Faturamento hoje", value: formatBRL(faturamentoHoje), icon: Wallet },
-      { label: "Vendas hoje", value: vendasHoje.toString(), icon: ShoppingBag },
-      { label: "Custos (mês)", value: formatBRL(custosMes), icon: Users },
+      { label: "Faturamento", value: formatBRL(totalRevenue), icon: Wallet },
+      { label: "Vendas", value: totalSales.toString(), icon: ShoppingBag },
+      { label: "Custos", value: formatBRL(totalCosts), icon: Users },
       {
-        label: "Lucro (mês)",
-        value: formatBRL(lucroMes),
+        label: "Lucro Líquido",
+        value: formatBRL(netProfit),
         icon: TrendingDown,
       },
     ],
-    [faturamentoHoje, vendasHoje, custosMes, lucroMes]
+    [totalRevenue, totalSales, totalCosts, netProfit]
   );
 
   if (loadingStats) {
@@ -117,17 +146,27 @@ export default function Dashboard() {
           <h1 className="text-base font-semibold tracking-tight">Estatísticas</h1>
           <p className="text-sm text-muted-foreground">Dados reais do seu PDV.</p>
         </div>
-        <Tabs value={filter} onValueChange={(v) => setFilter(v as Filter)}>
-          <TabsList className="bg-secondary/50 border-none">
-            <TabsTrigger value="dia" className="rounded-xl data-[state=active]:bg-primary">Hoje</TabsTrigger>
-          </TabsList>
-        </Tabs>
+
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" size="sm" className="rounded-xl gap-2 text-xs font-semibold h-9 bg-secondary/50 border-none">
+              <Calendar className="h-3.5 w-3.5 text-primary" />
+              {PERIOD_LABELS[period]}
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="rounded-xl">
+            <DropdownMenuItem onClick={() => setPeriod("today")}>Hoje</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setPeriod("yesterday")}>Ontem</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setPeriod("month")}>Este Mês</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setPeriod("year")}>Este Ano</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </section>
 
       <section className="mt-4 grid gap-3">
         <div className="grid grid-cols-2 gap-3">
           {cards.map((c, idx) => (
-            <Card key={c.label} className="rounded-3xl shadow-card border-none bg-background/50 backdrop-blur-md">
+            <Card key={c.label} className="rounded-3xl shadow-card dark:shadow-card-dark border-none bg-background/50 backdrop-blur-md">
               <div className="p-4">
                 <div className="flex items-center justify-between">
                   <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{c.label}</p>
@@ -135,7 +174,7 @@ export default function Dashboard() {
                 </div>
                 <p className={cn(
                   "mt-2 text-xl tracking-tight font-mono-numbers",
-                  c.label === "Faturamento hoje" ? "font-bold text-primary" : "font-semibold"
+                  c.label === "Faturamento" ? "font-bold text-primary" : "font-semibold"
                 )}>
                   {c.value}
                 </p>
@@ -144,7 +183,7 @@ export default function Dashboard() {
           ))}
         </div>
 
-        <Card className="rounded-3xl shadow-card border-none bg-background/50 backdrop-blur-md">
+        <Card className="rounded-3xl shadow-card dark:shadow-card-dark border-none bg-background/50 backdrop-blur-md">
           <div className="p-4">
             <div className="flex items-center justify-between">
               <h2 className="text-sm font-semibold tracking-tight">Performance diária</h2>
@@ -185,7 +224,7 @@ export default function Dashboard() {
             <h2 className="text-sm font-bold tracking-tight">Histórico de Vendas</h2>
           </div>
 
-          <Card className="rounded-3xl shadow-card border-none bg-background/50 backdrop-blur-md overflow-hidden">
+          <Card className="rounded-3xl shadow-card dark:shadow-card-dark border-none bg-background/50 backdrop-blur-md overflow-hidden">
             <div className="max-h-[380px] overflow-y-auto custom-scrollbar">
               {sales.length === 0 ? (
                 <div className="p-8 text-center text-muted-foreground">
