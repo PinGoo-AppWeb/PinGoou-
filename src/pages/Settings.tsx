@@ -170,64 +170,66 @@ export default function Settings() {
 
   const handleResetData = async () => {
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
+    if (!user) {
+      toast.error("Usuário não autenticado.");
+      return;
+    }
 
     try {
       setIsSaving(true);
+      console.log("Iniciando limpeza total de dados para o usuário:", user.id);
 
-      // 1. Buscar IDs das vendas do usuário para limpar itens
-      const { data: userSales, error: fetchSalesError } = await supabase
-        .from("sales")
-        .select("id")
-        .eq("user_id", user.id);
+      // 1. Limpar produtos (afeta sale_items por FK se não for cascade)
+      // Primeiro vamos limpar os itens de venda de todas as vendas do usuário
+      // Para garantir, vamos deletar direto das tabelas filtrando pelo usuário onde possível
 
-      if (fetchSalesError) throw fetchSalesError;
+      console.log("Limpando itens de venda...");
+      // Como sale_items não tem user_id direto, precisamos buscar as vendas
+      const { data: vSales } = await supabase.from("sales").select("id").eq("user_id", user.id);
+      const vSaleIds = vSales?.map(s => s.id) || [];
 
-      const saleIds = userSales?.map(s => s.id) || [];
-
-      // 2. Limpar itens de venda (sale_items)
-      if (saleIds.length > 0) {
-        const { error: itemsError } = await supabase
-          .from("sale_items")
-          .delete()
-          .in("sale_id", saleIds);
-
-        if (itemsError) throw itemsError;
+      if (vSaleIds.length > 0) {
+        const { error: e1 } = await supabase.from("sale_items").delete().in("sale_id", vSaleIds);
+        if (e1) {
+          console.error("Erro ao limpar sale_items:", e1);
+          throw e1;
+        }
       }
 
-      // 3. Limpar vendas (sales)
-      const { error: salesError } = await supabase
-        .from("sales")
-        .delete()
-        .eq("user_id", user.id);
-      if (salesError) throw salesError;
+      console.log("Limpando vendas...");
+      const { error: e2 } = await supabase.from("sales").delete().eq("user_id", user.id);
+      if (e2) {
+        console.error("Erro ao limpar sales:", e2);
+        throw e2;
+      }
 
-      // 4. Limpar produtos (products)
-      const { error: productsError } = await supabase
-        .from("products")
-        .delete()
-        .eq("user_id", user.id);
-      if (productsError) throw productsError;
+      console.log("Limpando produtos...");
+      const { error: e3 } = await supabase.from("products").delete().eq("user_id", user.id);
+      if (e3) {
+        console.error("Erro ao limpar products:", e3);
+        throw e3;
+      }
 
-      // 5. Limpar dias de trabalho delivery (delivery_work_days)
-      const { error: deliveryError } = await supabase
-        .from("delivery_work_days")
-        .delete()
-        .eq("user_id", user.id);
-      if (deliveryError) throw deliveryError;
+      console.log("Limpando dias de delivery...");
+      const { error: e4 } = await supabase.from("delivery_work_days").delete().eq("user_id", user.id);
+      if (e4) {
+        console.error("Erro ao limpar delivery_work_days:", e4);
+        throw e4;
+      }
 
-      toast.success("Todos os dados foram zerados!");
+      console.log("Limpeza concluída com sucesso!");
+      toast.success("Todos os seus dados foram apagados.");
       setResetDataOpen(false);
       setResetConfirmText("");
 
-      // Recarregar a página para limpar todos os estados locais de hooks/contextos
+      // Recarregar a página para resetar todos os estados
       setTimeout(() => {
         window.location.reload();
-      }, 500);
+      }, 800);
 
     } catch (error: any) {
-      console.error("Erro crítico ao resetar dados:", error);
-      toast.error("Erro ao zerar dados: " + (error.message || "Tente novamente"));
+      console.error("ERRO CRÍTICO NO RESET:", error);
+      toast.error("Falha ao zerar: " + (error.message || "Erro desconhecido"));
     } finally {
       setIsSaving(false);
     }
