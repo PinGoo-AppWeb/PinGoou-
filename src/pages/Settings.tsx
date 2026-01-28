@@ -6,7 +6,7 @@ import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Calendar } from "@/components/ui/calendar";
-import { BookOpen, CreditCard, Percent, Truck, User2, Vibrate, Loader2, Calendar as CalendarIcon, Camera, Trash } from "lucide-react";
+import { BookOpen, CreditCard, Percent, Truck, User2, Vibrate, Loader2, Calendar as CalendarIcon, Camera, Trash, AlertCircle } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { MonthlyRevenueGoalCard } from "@/components/settings/MonthlyRevenueGoalCard";
@@ -37,6 +37,7 @@ export default function Settings() {
   const [deliveryOpen, setDeliveryOpen] = useState(false);
   const [deleteAccountOpen, setDeleteAccountOpen] = useState(false);
   const [resetDataOpen, setResetDataOpen] = useState(false);
+  const [resetConfirmText, setResetConfirmText] = useState("");
   const [isUploading, setIsUploading] = useState(false);
 
   useEffect(() => {
@@ -174,25 +175,59 @@ export default function Settings() {
     try {
       setIsSaving(true);
 
-      // Limpa dados em ordem para evitar erros de FK
-      const { data: userSales } = await supabase.from("sales").select("id").eq("user_id", user.id);
+      // 1. Buscar IDs das vendas do usuário para limpar itens
+      const { data: userSales, error: fetchSalesError } = await supabase
+        .from("sales")
+        .select("id")
+        .eq("user_id", user.id);
+
+      if (fetchSalesError) throw fetchSalesError;
+
       const saleIds = userSales?.map(s => s.id) || [];
 
+      // 2. Limpar itens de venda (sale_items)
       if (saleIds.length > 0) {
-        await supabase.from("sale_items").delete().in("sale_id", saleIds);
+        const { error: itemsError } = await supabase
+          .from("sale_items")
+          .delete()
+          .in("sale_id", saleIds);
+
+        if (itemsError) throw itemsError;
       }
 
-      await supabase.from("sales").delete().eq("user_id", user.id);
-      await supabase.from("products").delete().eq("user_id", user.id);
-      await supabase.from("delivery_work_days").delete().eq("user_id", user.id);
+      // 3. Limpar vendas (sales)
+      const { error: salesError } = await supabase
+        .from("sales")
+        .delete()
+        .eq("user_id", user.id);
+      if (salesError) throw salesError;
 
-      toast.success("Dados zerados com sucesso!");
+      // 4. Limpar produtos (products)
+      const { error: productsError } = await supabase
+        .from("products")
+        .delete()
+        .eq("user_id", user.id);
+      if (productsError) throw productsError;
+
+      // 5. Limpar dias de trabalho delivery (delivery_work_days)
+      const { error: deliveryError } = await supabase
+        .from("delivery_work_days")
+        .delete()
+        .eq("user_id", user.id);
+      if (deliveryError) throw deliveryError;
+
+      toast.success("Todos os dados foram zerados!");
       setResetDataOpen(false);
-      // Recarregar profile para atualizar caches se necessário
-      window.location.reload();
+      setResetConfirmText("");
+
+      // Recarregar a página para limpar todos os estados locais de hooks/contextos
+      setTimeout(() => {
+        window.location.reload();
+      }, 500);
+
     } catch (error: any) {
-      console.error("Erro ao resetar dados:", error);
-      toast.error("Erro ao zerar dados.");
+      console.error("Erro crítico ao resetar dados:", error);
+      toast.error("Erro ao zerar dados: " + (error.message || "Tente novamente"));
     } finally {
       setIsSaving(false);
     }
@@ -465,23 +500,45 @@ export default function Settings() {
           </div>
         </ColorCard>
 
-        <Dialog open={resetDataOpen} onOpenChange={setResetDataOpen}>
+        <Dialog open={resetDataOpen} onOpenChange={(val) => {
+          setResetDataOpen(val);
+          if (!val) setResetConfirmText("");
+        }}>
           <DialogTrigger asChild>
-            <button className="mt-8 mb-2 w-full flex items-center justify-center gap-2 text-xs font-semibold text-muted-foreground/50 hover:text-primary transition-colors">
+            <button className="mt-8 mb-2 w-full flex items-center justify-center gap-2 text-xs font-semibold text-muted-foreground/50 hover:text-destructive transition-colors">
               <Trash className="h-3 w-3" />
               Zerar todos os dados do app
             </button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-md border-none bg-background/95 backdrop-blur-xl rounded-3xl">
             <DialogHeader>
-              <DialogTitle>Zerar Dados?</DialogTitle>
+              <DialogTitle className="text-destructive flex items-center gap-2">
+                <AlertCircle className="h-5 w-5" />
+                Zerar Dados Permanentemente?
+              </DialogTitle>
               <DialogDescription>
-                Isso excluirá todas as suas vendas, produtos e histórico. Seu perfil e configurações de taxas serão mantidos.
+                Esta ação <span className="font-bold text-destructive">não pode ser desfeita</span>. Todas as vendas, produtos e histórico de delivery serão apagados. Seu perfil e configurações de taxas serão mantidos.
               </DialogDescription>
             </DialogHeader>
+
+            <div className="py-4 space-y-3">
+              <Label className="text-xs text-muted-foreground">Para confirmar, digite <span className="font-bold text-foreground">ZERAR</span> no campo abaixo:</Label>
+              <Input
+                placeholder="Digite ZERAR"
+                value={resetConfirmText}
+                onChange={(e) => setResetConfirmText(e.target.value.toUpperCase())}
+                className="h-12 rounded-2xl bg-secondary/50 border-none text-center font-bold tracking-widest"
+              />
+            </div>
+
             <DialogFooter className="flex gap-2">
               <Button variant="outline" className="flex-1 rounded-2xl" onClick={() => setResetDataOpen(false)}>Cancelar</Button>
-              <Button variant="default" className="flex-1 rounded-2xl" onClick={handleResetData} disabled={isSaving}>
+              <Button
+                variant="destructive"
+                className="flex-1 rounded-2xl"
+                onClick={handleResetData}
+                disabled={isSaving || resetConfirmText !== "ZERAR"}
+              >
                 {isSaving ? <Loader2 className="animate-spin" /> : "Sim, zerar dados"}
               </Button>
             </DialogFooter>
