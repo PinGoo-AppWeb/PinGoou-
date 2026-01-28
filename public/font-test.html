@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste de Fontes - PinGoou</title>
+    <link rel="stylesheet" href="/src/fonts.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .status {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #c3e6cb;
+        }
+
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 2px solid #f5c6cb;
+        }
+
+        .font-test {
+            margin: 20px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 4px solid #ff6b35;
+        }
+
+        .font-test h3 {
+            margin: 0 0 10px 0;
+            color: #333;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .font-test p {
+            margin: 5px 0;
+            font-size: 24px;
+        }
+
+        .inter-test {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .outfit-test {
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .system-test {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+
+        button {
+            background: #ff6b35;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        .info {
+            font-size: 12px;
+            color: #6c757d;
+            margin-top: 20px;
+            padding: 15px;
+            background: #e9ecef;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1 style="text-align: center; color: #ff6b35; margin-bottom: 30px;">
+            🔍 Teste de Fontes
+        </h1>
+
+        <div id="status" class="status">
+            ⏳ Verificando fontes...
+        </div>
+
+        <div class="font-test">
+            <h3>Inter (Corpo de Texto)</h3>
+            <p class="inter-test">R$ 147.612,00</p>
+            <p class="inter-test" style="font-size: 16px;">
+                The quick brown fox jumps over the lazy dog
+            </p>
+        </div>
+
+        <div class="font-test">
+            <h3>Outfit (Títulos)</h3>
+            <p class="outfit-test" style="font-weight: 700;">R$ 147.612,00</p>
+            <p class="outfit-test" style="font-size: 16px; font-weight: 600;">
+                The quick brown fox jumps over the lazy dog
+            </p>
+        </div>
+
+        <div class="font-test">
+            <h3>Fonte do Sistema (Comparação)</h3>
+            <p class="system-test">R$ 147.612,00</p>
+            <p class="system-test" style="font-size: 16px;">
+                The quick brown fox jumps over the lazy dog
+            </p>
+        </div>
+
+        <button onclick="checkFonts()">🔄 Verificar Fontes Novamente</button>
+
+        <div class="info">
+            <strong>Como usar:</strong><br>
+            1. Compare visualmente as fontes acima<br>
+            2. Inter e Outfit devem parecer DIFERENTES da fonte do sistema<br>
+            3. Se parecerem iguais, as fontes não carregaram<br>
+            4. Clique em "Verificar Fontes" para diagnóstico técnico
+        </div>
+    </div>
+
+    <script>
+        async function checkFonts() {
+            const statusDiv = document.getElementById('status');
+
+            try {
+                // Verificar se Font Loading API está disponível
+                if (!('fonts' in document)) {
+                    statusDiv.className = 'status error';
+                    statusDiv.innerHTML = '❌ Navegador não suporta Font Loading API';
+                    return;
+                }
+
+                // Verificar Inter
+                const interLoaded = await document.fonts.check('12px Inter');
+
+                // Verificar Outfit
+                const outfitLoaded = await document.fonts.check('12px Outfit');
+
+                if (interLoaded && outfitLoaded) {
+                    statusDiv.className = 'status success';
+                    statusDiv.innerHTML = '✅ Todas as fontes carregadas com sucesso!<br><small>Inter e Outfit estão disponíveis</small>';
+                } else {
+                    statusDiv.className = 'status error';
+                    statusDiv.innerHTML = `❌ Algumas fontes não carregaram:<br>
+            <small>Inter: ${interLoaded ? '✅' : '❌'} | Outfit: ${outfitLoaded ? '✅' : '❌'}</small>`;
+                }
+
+                // Log detalhado no console
+                console.log('=== DIAGNÓSTICO DE FONTES ===');
+                console.log('Inter carregada:', interLoaded);
+                console.log('Outfit carregada:', outfitLoaded);
+                console.log('Fontes disponíveis:', Array.from(document.fonts).map(f => f.family));
+
+            } catch (error) {
+                statusDiv.className = 'status error';
+                statusDiv.innerHTML = '❌ Erro ao verificar fontes: ' + error.message;
+                console.error('Erro:', error);
+            }
+        }
+
+        // Verificar automaticamente ao carregar
+        window.addEventListener('load', () => {
+            setTimeout(checkFonts, 1000);
+        });
+    </script>
+</body>
+
+</html>
