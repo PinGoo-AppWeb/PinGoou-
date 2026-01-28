@@ -11,9 +11,10 @@ export default function Products() {
   const { products, loading, addProduct, deleteProduct } = useProducts();
   const [name, setName] = useState("");
   const [price, setPrice] = useState<string>("");
+  const [costPrice, setCostPrice] = useState<string>("");
   const [isAdding, setIsAdding] = useState(false);
 
-  const canAdd = useMemo(() => name.trim().length >= 2 && Number(price) > 0, [name, price]);
+  const canAdd = useMemo(() => name.trim().length >= 2 && Number(price) > 0 && Number(costPrice) >= 0, [name, price, costPrice]);
 
   const handleAddProduct = async () => {
     if (!canAdd) return;
@@ -21,6 +22,7 @@ export default function Products() {
     const result = await addProduct({
       name: name.trim(),
       price: Number(price),
+      cost_price: Number(costPrice),
       category: "Geral",
     });
 
@@ -28,6 +30,7 @@ export default function Products() {
       toast.success("Produto adicionado!");
       setName("");
       setPrice("");
+      setCostPrice("");
     } else {
       toast.error("Erro ao adicionar produto.");
     }
@@ -63,13 +66,22 @@ export default function Products() {
                 onChange={(e) => setName(e.target.value)}
                 className="h-12 rounded-2xl bg-background/50 border-none"
               />
-              <Input
-                placeholder="Preço de venda (R$)"
-                inputMode="decimal"
-                value={price}
-                onChange={(e) => setPrice(e.target.value.replace(",", "."))}
-                className="h-12 rounded-2xl bg-background/50 border-none"
-              />
+              <div className="grid grid-cols-2 gap-2">
+                <Input
+                  placeholder="Venda (R$)"
+                  inputMode="decimal"
+                  value={price}
+                  onChange={(e) => setPrice(e.target.value.replace(",", "."))}
+                  className="h-12 rounded-2xl bg-background/50 border-none px-4"
+                />
+                <Input
+                  placeholder="Custo (R$)"
+                  inputMode="decimal"
+                  value={costPrice}
+                  onChange={(e) => setCostPrice(e.target.value.replace(",", "."))}
+                  className="h-12 rounded-2xl bg-background/50 border-none px-4"
+                />
+              </div>
               <Button
                 variant="hero"
                 className="w-full h-12"
@@ -96,13 +108,12 @@ export default function Products() {
                 <div className="flex items-center justify-between p-4">
                   <div className="min-w-0">
                     <p className="truncate text-sm font-semibold tracking-tight">{p.name}</p>
-                    <p className="text-xs text-muted-foreground">{formatBRL(p.price)}</p>
+                    <div className="flex gap-2">
+                      <p className="text-xs text-muted-foreground">Venda: {formatBRL(p.price)}</p>
+                      <p className="text-xs text-muted-foreground/60">Custo: {formatBRL(p.cost_price || 0)}</p>
+                    </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <div className="flex items-center gap-2 rounded-full bg-accent px-3 py-1 text-[11px] font-medium text-accent-foreground">
-                      <Tag className="h-3.5 w-3.5" />
-                      Ativo
-                    </div>
                     <Button
                       variant="ghost"
                       size="icon"

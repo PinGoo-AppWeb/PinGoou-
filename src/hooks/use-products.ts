@@ -5,6 +5,7 @@ export type Product = {
     id: string;
     name: string;
     price: number;
+    cost_price: number;
     category: string | null;
     user_id: string;
 };

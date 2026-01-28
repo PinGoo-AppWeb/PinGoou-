@@ -36,6 +36,7 @@ export default function Settings() {
   const [cardRatesOpen, setCardRatesOpen] = useState(false);
   const [deliveryOpen, setDeliveryOpen] = useState(false);
   const [deleteAccountOpen, setDeleteAccountOpen] = useState(false);
+  const [resetDataOpen, setResetDataOpen] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
 
   useEffect(() => {
@@ -163,6 +164,37 @@ export default function Settings() {
       toast.error("Erro ao carregar foto: " + error.message);
     } finally {
       setIsUploading(false);
+    }
+  };
+
+  const handleResetData = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    try {
+      setIsSaving(true);
+
+      // Limpa dados em ordem para evitar erros de FK
+      const { data: userSales } = await supabase.from("sales").select("id").eq("user_id", user.id);
+      const saleIds = userSales?.map(s => s.id) || [];
+
+      if (saleIds.length > 0) {
+        await supabase.from("sale_items").delete().in("sale_id", saleIds);
+      }
+
+      await supabase.from("sales").delete().eq("user_id", user.id);
+      await supabase.from("products").delete().eq("user_id", user.id);
+      await supabase.from("delivery_work_days").delete().eq("user_id", user.id);
+
+      toast.success("Dados zerados com sucesso!");
+      setResetDataOpen(false);
+      // Recarregar profile para atualizar caches se necessário
+      window.location.reload();
+    } catch (error: any) {
+      console.error("Erro ao resetar dados:", error);
+      toast.error("Erro ao zerar dados.");
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -433,9 +465,32 @@ export default function Settings() {
           </div>
         </ColorCard>
 
+        <Dialog open={resetDataOpen} onOpenChange={setResetDataOpen}>
+          <DialogTrigger asChild>
+            <button className="mt-8 mb-2 w-full flex items-center justify-center gap-2 text-xs font-semibold text-muted-foreground/50 hover:text-primary transition-colors">
+              <Trash className="h-3 w-3" />
+              Zerar todos os dados do app
+            </button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-md border-none bg-background/95 backdrop-blur-xl rounded-3xl">
+            <DialogHeader>
+              <DialogTitle>Zerar Dados?</DialogTitle>
+              <DialogDescription>
+                Isso excluirá todas as suas vendas, produtos e histórico. Seu perfil e configurações de taxas serão mantidos.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter className="flex gap-2">
+              <Button variant="outline" className="flex-1 rounded-2xl" onClick={() => setResetDataOpen(false)}>Cancelar</Button>
+              <Button variant="default" className="flex-1 rounded-2xl" onClick={handleResetData} disabled={isSaving}>
+                {isSaving ? <Loader2 className="animate-spin" /> : "Sim, zerar dados"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
         <Dialog open={deleteAccountOpen} onOpenChange={setDeleteAccountOpen}>
           <DialogTrigger asChild>
-            <button className="mt-8 mb-4 w-full flex items-center justify-center gap-2 text-xs font-semibold text-muted-foreground/50 hover:text-destructive transition-colors">
+            <button className="mb-4 w-full flex items-center justify-center gap-2 text-xs font-semibold text-muted-foreground/30 hover:text-destructive transition-colors">
               <Trash className="h-3 w-3" />
               Excluir minha conta permanentemente
             </button>
