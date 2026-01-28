@@ -18,7 +18,7 @@ export function SaleDateSelector({ selectedDate, onDateChange, onUseToday }: Sal
 
     return (
         <ColorCard tone="indigo">
-            <div className="p-4">
+            <div className="p-4 max-h-[500px] overflow-y-auto">
                 <div className="flex items-center justify-between mb-4">
                     <div>
                         <h1 className="text-base font-semibold tracking-tight">Data da Venda</h1>
@@ -66,71 +66,58 @@ export function SaleDateSelector({ selectedDate, onDateChange, onUseToday }: Sal
                 </div>
 
                 {/* Calendar */}
-                <div className="rounded-2xl border bg-background/70 p-4">
+                <div className="rounded-2xl border bg-background/70 p-3">
                     <Calendar
                         mode="single"
                         selected={selectedDate}
                         onSelect={onDateChange}
                         disabled={(date) => date > new Date() || date < new Date("2020-01-01")}
                         locale={ptBR}
-                        className="rounded-xl w-full"
+                        className="rounded-xl"
                         classNames={{
-                            months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0 w-full",
-                            month: "space-y-4 w-full",
-                            caption: "flex justify-center pt-1 relative items-center mb-2",
-                            caption_label: "text-base font-semibold",
+                            months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
+                            month: "space-y-4",
+                            caption: "flex justify-center pt-1 relative items-center",
+                            caption_label: "text-sm font-medium",
                             nav: "space-x-1 flex items-center",
                             nav_button: cn(
-                                "h-8 w-8 bg-transparent p-0 opacity-50 hover:opacity-100 rounded-md hover:bg-accent"
+                                "h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100"
                             ),
                             nav_button_previous: "absolute left-1",
                             nav_button_next: "absolute right-1",
-                            table: "w-full border-collapse",
-                            head_row: "flex w-full",
-                            head_cell: "text-muted-foreground rounded-md flex-1 font-medium text-sm",
-                            row: "flex w-full mt-1",
-                            cell: "flex-1 text-center text-sm p-0 relative",
+                            table: "w-full border-collapse space-y-1",
+                            head_row: "flex",
+                            head_cell: "text-muted-foreground rounded-md w-9 font-normal text-[0.8rem]",
+                            row: "flex w-full mt-2",
+                            cell: "h-9 w-9 text-center text-sm p-0 relative [&:has([aria-selected].day-range-end)]:rounded-r-md [&:has([aria-selected].day-outside)]:bg-accent/50 [&:has([aria-selected])]:bg-accent first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
                             day: cn(
-                                "h-11 w-11 mx-auto p-0 font-normal aria-selected:opacity-100 hover:bg-accent hover:text-accent-foreground rounded-lg transition-colors"
+                                "h-9 w-9 p-0 font-normal aria-selected:opacity-100 hover:bg-accent hover:text-accent-foreground rounded-md transition-colors"
                             ),
                             day_range_end: "day-range-end",
-                            day_selected: "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground font-bold",
-                            day_today: "bg-accent text-accent-foreground font-bold ring-2 ring-primary",
-                            day_outside: "day-outside text-muted-foreground opacity-30",
-                            day_disabled: "text-muted-foreground opacity-30 line-through",
+                            day_selected: "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
+                            day_today: "bg-accent text-accent-foreground font-bold",
+                            day_outside: "day-outside text-muted-foreground opacity-50 aria-selected:bg-accent/50 aria-selected:text-muted-foreground aria-selected:opacity-30",
+                            day_disabled: "text-muted-foreground opacity-50",
                             day_range_middle: "aria-selected:bg-accent aria-selected:text-accent-foreground",
                             day_hidden: "invisible",
                         }}
                     />
                 </div>
 
-                {/* Selected Date Display */}
-                <div className="mt-4 rounded-2xl border bg-background/70 p-4">
+                {/* Selected Date Display - Compacto */}
+                <div className="mt-3 rounded-2xl border bg-background/70 p-3">
                     <div className="flex items-center justify-between">
-                        <div>
-                            <p className="text-xs text-muted-foreground">Data selecionada</p>
-                            <p className="text-sm font-semibold mt-1">
-                                {format(selectedDate, "EEEE, dd 'de' MMMM 'de' yyyy", { locale: ptBR })}
-                            </p>
-                        </div>
+                        <p className="text-xs font-semibold">
+                            {format(selectedDate, "dd/MM/yyyy", { locale: ptBR })}
+                        </p>
                         {isRetroactive && !isSelectedToday && (
-                            <div className="flex items-center gap-1 rounded-full bg-orange-500/10 px-3 py-1">
+                            <div className="flex items-center gap-1 rounded-full bg-orange-500/10 px-2 py-0.5">
                                 <CalendarIcon className="h-3 w-3 text-orange-500" />
                                 <span className="text-[10px] font-semibold text-orange-500">RETROATIVA</span>
                             </div>
                         )}
                     </div>
                 </div>
-
-                {/* Info Message */}
-                {isRetroactive && !isSelectedToday && (
-                    <div className="mt-3 rounded-xl bg-orange-50 border border-orange-200 p-3">
-                        <p className="text-xs text-orange-900">
-                            <strong>💡 Venda retroativa:</strong> Esta venda será registrada com a data selecionada.
-                            Útil para lançar vendas que foram esquecidas ou feitas offline.
-                        </p>
-                    </div>
-                )}
             </div>
         </ColorCard>
     );
