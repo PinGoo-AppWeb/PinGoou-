@@ -86,6 +86,27 @@ export function MascotAnimated({
     }
 
 
+    // 3) Ajusta ViewBox para dar "zoom" (removendo margens vazias se houver)
+    // O original é 0 0 2978 2442. Vamos tentar focar mais no centro/rosto se parecer pequeno.
+    // Mas o usuário pediu "aumentar o tamanho", o que pode ser CSS ou viewBox.
+    // Se o SVG tem muita borda vazia, viewBox resolve.
+    // O SVG atual parece preencher bem (circle 2978x2442?? não é circle, é path ovalado).
+    // O path do corpo é: M2978 1489... C... 1489 2442...
+    // Com base nos paths, o SVG ocupa quase tudo.
+    // Então para "aumentar", vamos garantir que o CSS ocupe 100% e talvez
+    // escalar um pouco via transform se necessário.
+
+    // O usuário disse "aumentar o tamanho do mascote: feliz e o dormindo".
+    // Provavelmente quer que ele ocupe mais espaço no container.
+    // Vamos ajustar o replace do <svg> para garantir width/height 100%.
+
+    svg = svg.replace(/width="[^"]*"/, 'width="100%"').replace(/height="[^"]*"/, 'height="100%"');
+
+    // Se o usuário quer ZOOM (rosto maior), precisaríamos alterar o viewBox. 
+    // Vamos assumir que ele quer apenas que o componente seja responsivo e grande.
+    // MAS, comparando com o pedido "feliz e o dormindo", talvez o 'dormindo' esteja pequeno.
+    // Vamos aplicar um scale(1.15) no CSS do container para dar um "pump" geral.
+
     return svg;
   }, [mode]);
 
@@ -184,7 +205,7 @@ export function MascotAnimated({
         // Aplica bounce no container para garantir salto contínuo do mascote inteiro,
         // independente de como o SVG venha (com/sem class no <svg>).
         className={cn(
-          "relative block h-full w-full [&_svg]:h-full [&_svg]:w-full [&_svg]:block transition-all duration-700 ease-in-out",
+          "relative block h-full w-full [&_svg]:h-full [&_svg]:w-full [&_svg]:block transition-all duration-700 ease-in-out scale-[1.35] origin-bottom -mb-2",
           mode === "active" && "bounce",
           mode === "happy" && "happy-bounce happy-tilt",
           mode === "sleep" && "sleep-bounce",

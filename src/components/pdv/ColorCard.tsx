@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 import * as React from "react";
 import type { ReactNode } from "react";
 
-type Tone = "lime" | "indigo" | "orange";
+type Tone = "lime" | "indigo" | "orange" | "purple";
 
 type Props = {
   tone?: Tone;
@@ -16,6 +16,7 @@ const toneClass: Record<Tone, string> = {
   lime: "bg-card-lime shadow-glow-lime",
   indigo: "bg-card-indigo shadow-glow-indigo",
   orange: "bg-card-orange shadow-glow-orange",
+  purple: "bg-gradient-to-br from-violet-200 to-fuchsia-300 shadow-xl shadow-fuchsia-500/10",
 };
 
 /**

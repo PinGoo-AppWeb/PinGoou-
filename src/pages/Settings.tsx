@@ -6,7 +6,7 @@ import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Calendar } from "@/components/ui/calendar";
-import { BookOpen, CreditCard, Percent, Truck, User2, Vibrate, Loader2, Calendar as CalendarIcon, Camera, Trash, AlertCircle } from "lucide-react";
+import { BookOpen, CreditCard, Percent, Truck, User2, Vibrate, Loader2, Calendar as CalendarIcon, Camera, Trash, AlertCircle, Crown } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { MonthlyRevenueGoalCard } from "@/components/settings/MonthlyRevenueGoalCard";
@@ -301,6 +301,14 @@ export default function Settings() {
         <div className="text-center">
           <p className="font-bold">{profile?.full_name || "Seu Nome"}</p>
           <p className="text-xs text-muted-foreground font-medium">{profile?.store_name || "Sua Loja"}</p>
+
+          <button
+            onClick={() => setShowUpgradeModal(true)}
+            className="mt-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white shadow-lg shadow-purple-500/20 hover:scale-105 transition-transform"
+          >
+            <Crown className="h-3 w-3 fill-current" />
+            <span className="text-[10px] font-bold uppercase tracking-wider">Seja PRO</span>
+          </button>
         </div>
       </section>
 
