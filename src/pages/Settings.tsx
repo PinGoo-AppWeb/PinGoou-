@@ -16,6 +16,7 @@ import { supabase } from "@/lib/supabase";
 import { useNavigate } from "react-router-dom";
 import { formatBRL } from "@/lib/pdv-data";
 import { cn } from "@/lib/utils";
+import { FontDebugPanel } from "@/components/debug/FontDebugPanel";
 
 export default function Settings() {
   const navigate = useNavigate();
@@ -232,6 +233,9 @@ export default function Settings() {
 
       <section className="mt-4 grid gap-3">
         <MonthlyRevenueGoalCard />
+
+        {/* Debug Panel - Remover após resolver problema de fontes */}
+        <FontDebugPanel />
 
         <ColorCard tone="lime">
           <div className="p-4">
