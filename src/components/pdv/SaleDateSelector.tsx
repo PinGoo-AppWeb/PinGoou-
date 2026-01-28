@@ -66,7 +66,7 @@ export function SaleDateSelector({ selectedDate, onDateChange, onUseToday }: Sal
                 </div>
 
                 {/* Calendar */}
-                <div className="rounded-2xl border bg-background/70 p-3 overflow-hidden">
+                <div className="rounded-2xl border bg-background/70 p-3">
                     <Calendar
                         mode="single"
                         selected={selectedDate}
