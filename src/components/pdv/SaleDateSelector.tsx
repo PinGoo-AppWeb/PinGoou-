@@ -51,7 +51,6 @@ export function SaleDateSelector({ selectedDate, onDateChange, onUseToday }: Sal
                             "h-14 rounded-2xl transition-all",
                             !isSelectedToday && "ring-2 ring-primary shadow-glow-indigo"
                         )}
-                        disabled={!isSelectedToday}
                     >
                         <div className="flex flex-col items-center gap-1">
                             <CalendarIcon className="h-4 w-4" />
