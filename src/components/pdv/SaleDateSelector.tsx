@@ -35,7 +35,7 @@ export function SaleDateSelector({ selectedDate, onDateChange, onUseToday }: Sal
                         variant={isSelectedToday ? "default" : "outline"}
                         className={cn(
                             "h-14 rounded-2xl transition-all",
-                            isSelectedToday && "ring-2 ring-primary shadow-glow-indigo"
+                            isSelectedToday && "ring-2 ring-primary shadow-glow-orange"
                         )}
                         onClick={onUseToday}
                     >
@@ -49,8 +49,14 @@ export function SaleDateSelector({ selectedDate, onDateChange, onUseToday }: Sal
                         variant={!isSelectedToday ? "default" : "outline"}
                         className={cn(
                             "h-14 rounded-2xl transition-all",
-                            !isSelectedToday && "ring-2 ring-primary shadow-glow-indigo"
+                            !isSelectedToday && "ring-2 ring-primary shadow-glow-orange"
                         )}
+                        onClick={() => {
+                            // Seleciona ontem como exemplo de data retroativa
+                            const yesterday = new Date();
+                            yesterday.setDate(yesterday.getDate() - 1);
+                            onDateChange(yesterday);
+                        }}
                     >
                         <div className="flex flex-col items-center gap-1">
                             <CalendarIcon className="h-4 w-4" />
