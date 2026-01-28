@@ -3,16 +3,25 @@ import { ColorCard } from "@/components/pdv/ColorCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { formatBRL } from "@/lib/pdv-data";
-import { Plus, Tag, Trash2, Loader2 } from "lucide-react";
-import { useProducts } from "@/hooks/use-products";
+import { Plus, Tag, Trash2, Loader2, Pencil } from "lucide-react"; // Import Pencil
+import { useProducts, Product } from "@/hooks/use-products";
 import { toast } from "sonner";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"; // Import Dialog components
+import { Label } from "@/components/ui/label"; // Import Label
 
 export default function Products() {
-  const { products, loading, addProduct, deleteProduct } = useProducts();
+  const { products, loading, addProduct, deleteProduct, updateProduct } = useProducts();
   const [name, setName] = useState("");
   const [price, setPrice] = useState<string>("");
   const [costPrice, setCostPrice] = useState<string>("");
   const [isAdding, setIsAdding] = useState(false);
+
+  // Edit States
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [editName, setEditName] = useState("");
+  const [editPrice, setEditPrice] = useState("");
+  const [editCost, setEditCost] = useState("");
+  const [isSavingEdit, setIsSavingEdit] = useState(false);
 
   const canAdd = useMemo(() => name.trim().length >= 2 && Number(price) > 0 && Number(costPrice) >= 0, [name, price, costPrice]);
 
@@ -46,6 +55,36 @@ export default function Products() {
         toast.error("Erro ao excluir produto.");
       }
     }
+  };
+
+  const openEditModal = (product: Product) => {
+    setEditingProduct(product);
+    setEditName(product.name);
+    setEditPrice(product.price.toString());
+    setEditCost(product.cost_price.toString());
+  };
+
+  const handleUpdateProduct = async () => {
+    if (!editingProduct) return;
+    if (!editName.trim() || Number(editPrice) <= 0) {
+      toast.error("Preencha os campos corretamente.");
+      return;
+    }
+
+    setIsSavingEdit(true);
+    const success = await updateProduct(editingProduct.id, {
+      name: editName,
+      price: Number(editPrice),
+      cost_price: Number(editCost)
+    });
+
+    if (success) {
+      toast.success("Produto atualizado!");
+      setEditingProduct(null);
+    } else {
+      toast.error("Erro ao atualizar produto.");
+    }
+    setIsSavingEdit(false);
   };
 
   return (
@@ -113,7 +152,15 @@ export default function Products() {
                       <p className="text-xs text-muted-foreground/60">Custo: {formatBRL(p.cost_price || 0)}</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 text-muted-foreground hover:text-primary"
+                      onClick={() => openEditModal(p)}
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </Button>
                     <Button
                       variant="ghost"
                       size="icon"
@@ -129,6 +176,52 @@ export default function Products() {
           )}
         </div>
       </section>
+
+      {/* Edit Modal */}
+      <Dialog open={!!editingProduct} onOpenChange={(open) => !open && setEditingProduct(null)}>
+        <DialogContent className="sm:max-w-md border-none bg-background/95 backdrop-blur-xl rounded-3xl">
+          <DialogHeader>
+            <DialogTitle>Editar Produto</DialogTitle>
+            <DialogDescription>Ajuste os detalhes do seu produto.</DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label>Nome</Label>
+              <Input
+                value={editName}
+                onChange={(e) => setEditName(e.target.value)}
+                className="h-12 rounded-2xl bg-secondary/50 border-none"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="grid gap-2">
+                <Label>Venda (R$)</Label>
+                <Input
+                  type="number"
+                  value={editPrice}
+                  onChange={(e) => setEditPrice(e.target.value)}
+                  className="h-12 rounded-2xl bg-secondary/50 border-none"
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label>Custo (R$)</Label>
+                <Input
+                  type="number"
+                  value={editCost}
+                  onChange={(e) => setEditCost(e.target.value)}
+                  className="h-12 rounded-2xl bg-secondary/50 border-none"
+                />
+              </div>
+            </div>
+          </div>
+          <DialogFooter className="flex gap-2">
+            <Button variant="outline" className="flex-1 rounded-2xl" onClick={() => setEditingProduct(null)}>Cancelar</Button>
+            <Button variant="hero" className="flex-1 rounded-2xl" onClick={handleUpdateProduct} disabled={isSavingEdit}>
+              {isSavingEdit ? <Loader2 className="animate-spin" /> : "Salvar Alterações"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </main>
   );
 }

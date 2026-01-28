@@ -56,9 +56,22 @@ export function useProducts() {
         return false;
     };
 
+    const updateProduct = async (id: string, updates: Partial<Product>) => {
+        const { error } = await supabase
+            .from("products")
+            .update(updates)
+            .eq("id", id);
+
+        if (!error) {
+            setProducts(prev => prev.map(p => p.id === id ? { ...p, ...updates } : p));
+            return true;
+        }
+        return false;
+    };
+
     useEffect(() => {
         fetchProducts();
     }, []);
 
-    return { products, loading, addProduct, deleteProduct, refresh: fetchProducts };
+    return { products, loading, addProduct, deleteProduct, updateProduct, refresh: fetchProducts };
 }
