@@ -44,6 +44,29 @@ export default function Dashboard() {
     loadSales();
   }, []);
 
+  // 🔄 Recarregar dados quando a página volta ao foco
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        loadSales();
+        refreshStats();
+      }
+    };
+
+    const handleFocus = () => {
+      loadSales();
+      refreshStats();
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('focus', handleFocus);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, [refreshStats]);
+
   const handleDelete = async (id: string) => {
     const success = await deleteSale(id);
     if (success) {

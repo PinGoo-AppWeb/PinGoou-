@@ -14,7 +14,7 @@ import { useDashboardStats } from "@/hooks/use-dashboard-stats";
 
 const Index = () => {
   const { profile, loading: loadingProfile } = useProfile();
-  const { faturamentoHoje, totalMes, vendasHoje, ticketMedio, loading: loadingStats } = useDashboardStats();
+  const { faturamentoHoje, totalMes, vendasHoje, ticketMedio, loading: loadingStats, refresh: refreshStats } = useDashboardStats();
 
   const [cardsExpanded, setCardsExpanded] = useState(false);
   const sleepSeconds = profile?.mascot_sleep_seconds || 10;
@@ -38,6 +38,27 @@ const Index = () => {
       return () => clearTimeout(timer);
     }
   }, [firstLoad]);
+
+  // 🔄 Recarregar stats quando a página volta ao foco (após registrar venda)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        refreshStats();
+      }
+    };
+
+    const handleFocus = () => {
+      refreshStats();
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('focus', handleFocus);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', handleFocus);
+    };
+  }, [refreshStats]);
 
   const [monthlyGoal, setMonthlyGoal] = useState<number | null>(null);
 

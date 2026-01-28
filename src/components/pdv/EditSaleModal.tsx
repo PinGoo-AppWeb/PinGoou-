@@ -205,7 +205,7 @@ export function EditSaleModal({ sale, open, onClose, onSave, products }: EditSal
                                                 >
                                                     <Minus className="h-3 w-3" />
                                                 </Button>
-                                                <span className="w-8 text-center font-mono text-sm font-bold">
+                                                <span className="w-8 text-center font-mono-numbers text-sm font-bold">
                                                     {item.qty}
                                                 </span>
                                                 <Button
@@ -301,12 +301,12 @@ export function EditSaleModal({ sale, open, onClose, onSave, products }: EditSal
                         <div className="space-y-2 p-4 bg-primary/5 rounded-2xl border border-primary/10">
                             <div className="flex justify-between text-sm">
                                 <span className="text-muted-foreground">Subtotal</span>
-                                <span className="font-mono font-semibold">{formatBRL(subtotal)}</span>
+                                <span className="font-mono-numbers font-semibold">{formatBRL(subtotal)}</span>
                             </div>
                             {isDelivery && (
                                 <div className="flex justify-between text-sm">
                                     <span className="text-muted-foreground">Taxa Delivery</span>
-                                    <span className="font-mono font-semibold">
+                                    <span className="font-mono-numbers font-semibold">
                                         {formatBRL(taxaDelivery)}
                                     </span>
                                 </div>
@@ -314,7 +314,7 @@ export function EditSaleModal({ sale, open, onClose, onSave, products }: EditSal
                             <Separator className="my-2" />
                             <div className="flex justify-between">
                                 <span className="text-sm font-bold">Total</span>
-                                <span className="text-lg font-bold text-primary font-mono">
+                                <span className="text-lg font-bold text-primary font-mono-numbers">
                                     {formatBRL(total)}
                                 </span>
                             </div>
