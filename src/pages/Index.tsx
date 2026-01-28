@@ -39,6 +39,11 @@ const Index = () => {
     }
   }, [firstLoad]);
 
+  // 🔄 Recarregar stats SEMPRE que a página Index for exibida
+  useEffect(() => {
+    refreshStats();
+  }, []); // Executa toda vez que o componente monta
+
   // 🔄 Recarregar stats quando a página volta ao foco (após registrar venda)
   useEffect(() => {
     const handleVisibilityChange = () => {

@@ -9,52 +9,31 @@
   <meta name="author" content="PinGoou" />
 
   <!-- Preload de fontes críticas para evitar FOUT (Flash of Unstyled Text) -->
+  <!-- Google Fonts - Link Direto com cache busting v=4 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="preload" as="font" type="font/woff2"
-    href="https://fonts.gstatic.com/s/inter/v18/UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuLyfAZ9hiA.woff2"
-    crossorigin>
-  <link rel="preload" as="font" type="font/woff2"
-    href="https://fonts.gstatic.com/s/inter/v18/UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuI6fAZ9hiA.woff2"
-    crossorigin>
-  <link rel="preload" as="font" type="font/woff2"
-    href="https://fonts.gstatic.com/s/inter/v18/UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuGKYAZ9hiA.woff2"
-    crossorigin>
-  <link rel="preload" as="font" type="font/woff2"
-    href="https://fonts.gstatic.com/s/inter/v18/UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuFuYAZ9hiA.woff2"
-    crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap&v=4"
+    rel="stylesheet">
 
-
-
-  <!-- TODO: Update og:title to match your application name -->
-  <meta property="og:title" content="Lovable App" />
-  <meta property="og:description" content="Lovable Generated Project" />
-  <meta property="og:type" content="website" />
-  <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
-
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:site" content="@Lovable" />
-  <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
-
-  <!-- Force font loading before rendering -->
+  <!-- Force font loading script -->
   <script>
-    // Force Inter font loading
     if ('fonts' in document) {
-      const interFonts = [
-        new FontFace('Inter', 'url(https://fonts.gstatic.com/s/inter/v18/UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuLyfAZ9hiA.woff2)', { weight: '400' }),
-        new FontFace('Inter', 'url(https://fonts.gstatic.com/s/inter/v18/UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuI6fAZ9hiA.woff2)', { weight: '500' }),
-        new FontFace('Inter', 'url(https://fonts.gstatic.com/s/inter/v18/UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuGKYAZ9hiA.woff2)', { weight: '600' }),
-        new FontFace('Inter', 'url(https://fonts.gstatic.com/s/inter/v18/UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuFuYAZ9hiA.woff2)', { weight: '700' })
+      const fontsToLoad = [
+        { family: 'Inter', url: 'https://fonts.gstatic.com/s/inter/v18/UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuLyfAZ9hiA.woff2', weight: '400' },
+        { family: 'Inter', url: 'https://fonts.gstatic.com/s/inter/v18/UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuFuYAZ9hiA.woff2', weight: '700' },
+        { family: 'Outfit', url: 'https://fonts.gstatic.com/s/outfit/v11/QGYyz_MVcBeNP4NjuGObqx1XmO1I4TC0C4G-EiAou6Y.woff2', weight: '500' },
+        { family: 'Outfit', url: 'https://fonts.gstatic.com/s/outfit/v11/QGYyz_MVcBeNP4NjuGObqx1XmO1I4em1C4G-EiAou6Y.woff2', weight: '800' }
       ];
 
-      Promise.all(interFonts.map(font => font.load())).then(fonts => {
-        fonts.forEach(font => document.fonts.add(font));
-        console.log('✅ Inter fonts loaded successfully!');
-      }).catch(err => {
-        console.warn('⚠️ Error loading Inter fonts:', err);
-      });
+      Promise.all(fontsToLoad.map(f => {
+        const font = new FontFace(f.family, `url(${f.url})`, { weight: f.weight });
+        return font.load().then(loaded => document.fonts.add(loaded));
+      })).then(() => {
+        console.log('✅ Premium fonts loaded!');
+      }).catch(err => console.warn('⚠️ Font loading issue:', err));
     }
   </script>
-
 </head>
 
 <body>

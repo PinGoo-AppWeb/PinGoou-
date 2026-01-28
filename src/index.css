@@ -95,7 +95,7 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
@@ -105,8 +105,7 @@ All colors MUST be HSL.
   h3,
   h4,
   .font-display {
-    /* Usando Inter para headings com fallback robusto */
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+    font-family: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     font-weight: 700;
     letter-spacing: -0.02em;
   }
@@ -172,10 +171,9 @@ All colors MUST be HSL.
     }
   }
 
-  /* Classe para valores numéricos em cards - usa fonte monospace */
-  /* Stack otimizada para mobile: SF Mono (iOS), Roboto Mono (Android), Menlo (macOS), Consolas (Windows) */
+  /* Classe para valores numéricos em cards - Identidade Visual PinGoou */
   .font-mono-numbers {
-    font-family: ui-monospace, 'SF Mono', 'Roboto Mono', 'Menlo', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', monospace;
+    font-family: 'Outfit', 'Inter', ui-monospace, 'SF Mono', 'Roboto Mono', monospace;
     font-variant-numeric: tabular-nums;
     letter-spacing: -0.01em;
     font-feature-settings: "tnum" 1;
