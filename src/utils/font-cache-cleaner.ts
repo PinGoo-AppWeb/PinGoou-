@@ -54,7 +54,7 @@ export const clearFontCache = async (): Promise<void> => {
 
 /**
  * Verificar se as fontes estão carregadas
- * Verifica todos os pesos importantes de Inter e Outfit
+ * Verifica todos os pesos importantes de Inter
  */
 export const checkFontsLoaded = async (): Promise<boolean> => {
     try {
@@ -93,8 +93,8 @@ export const checkFontsLoaded = async (): Promise<boolean> => {
         console.log(`  - Inter: ${allInterLoaded ? '✅ Todas carregadas' : '⚠️ Algumas faltando'}`);
         console.log(`  - Outfit: ${allOutfitLoaded ? '✅ Todas carregadas' : '⚠️ Algumas faltando'}`);
 
-        // Retorna true apenas se TODAS as fontes estiverem carregadas
-        return allInterLoaded && allOutfitLoaded;
+        // Retorna true apenas se TODAS as fontes Inter estiverem carregadas
+        return allInterLoaded;
     } catch (error) {
         console.error('❌ Erro ao verificar fontes:', error);
         return false;
