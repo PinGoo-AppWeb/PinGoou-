@@ -1,3 +1,4 @@
+/* CSS Version: 2026-01-28-10:24 - font-mono-numbers class added */
 @import './fonts.css';
 
 @tailwind base;
@@ -169,5 +170,12 @@ All colors MUST be HSL.
     to {
       background-position: -200% 0;
     }
+  }
+
+  /* Classe para valores numéricos em cards - usa fonte monospace */
+  .font-mono-numbers {
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.01em;
   }
 }

@@ -259,7 +259,7 @@ export default function NewSale() {
               <div className="mt-4 rounded-2xl border bg-background/70 p-3">
                 <div className="flex items-center justify-between">
                   <p className="text-xs font-medium text-muted-foreground">Subtotal</p>
-                  <p className="font-mono text-sm font-semibold">{formatBRL(subtotal)}</p>
+                  <p className="font-mono-numbers text-sm font-semibold">{formatBRL(subtotal)}</p>
                 </div>
               </div>
             )}
@@ -355,7 +355,7 @@ export default function NewSale() {
         <div className="p-4">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-base font-semibold">Resumo</h2>
-            <span className="font-mono text-lg font-bold">{formatBRL(total)}</span>
+            <span className="font-mono-numbers text-lg font-bold">{formatBRL(total)}</span>
           </div>
           <Separator className="my-4" />
           <div className="space-y-2 text-sm">

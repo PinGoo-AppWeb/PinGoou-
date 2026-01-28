@@ -14,38 +14,35 @@ import Settings from "@/pages/Settings";
 import Auth from "@/pages/Auth";
 import { ProtectedRoute } from "@/components/layout/ProtectedRoute";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
-import { FontLoader } from "@/components/FontLoader";
 
 const queryClient = new QueryClient();
 
 const App = () => (
-  <FontLoader>
-    <ThemeProvider>
-      <QueryClientProvider client={queryClient}>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <Routes>
-              <Route path="/auth" element={<Auth />} />
-              <Route element={<ProtectedRoute />}>
-                <Route element={<MobileShell />}>
-                  <Route path="/" element={<Index />} />
-                  <Route path="/venda/nova" element={<NewSale />} />
-                  <Route path="/dashboard" element={<Dashboard />} />
-                  <Route path="/produtos" element={<Products />} />
-                  <Route path="/relatorios" element={<Reports />} />
-                  <Route path="/configuracoes" element={<Settings />} />
-                </Route>
+  <ThemeProvider>
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/auth" element={<Auth />} />
+            <Route element={<ProtectedRoute />}>
+              <Route element={<MobileShell />}>
+                <Route path="/" element={<Index />} />
+                <Route path="/venda/nova" element={<NewSale />} />
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/produtos" element={<Products />} />
+                <Route path="/relatorios" element={<Reports />} />
+                <Route path="/configuracoes" element={<Settings />} />
               </Route>
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
-        </TooltipProvider>
-      </QueryClientProvider>
-    </ThemeProvider>
-  </FontLoader>
+            </Route>
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
+  </ThemeProvider>
 );
 
 export default App;

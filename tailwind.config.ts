@@ -13,6 +13,10 @@ export default {
       },
     },
     extend: {
+      fontFamily: {
+        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'sans-serif'],
+        mono: ['Consolas', 'Monaco', 'Courier New', 'monospace'],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -111,21 +115,21 @@ export default {
           "92%": { transform: "scaleY(0.08)" },
         },
         "slide-in-bottom": {
-          "0%": { 
+          "0%": {
             transform: "translateX(-50%) translateY(100%)",
             opacity: "0"
           },
-          "100%": { 
+          "100%": {
             transform: "translateX(-50%) translateY(0)",
             opacity: "1"
           },
         },
         "slide-in-bottom-scaled": {
-          "0%": { 
+          "0%": {
             transform: "translateX(-50%) translateY(100%) scale(0.86)",
             opacity: "0"
           },
-          "100%": { 
+          "100%": {
             transform: "translateX(-50%) translateY(0) scale(0.86)",
             opacity: "1"
           },

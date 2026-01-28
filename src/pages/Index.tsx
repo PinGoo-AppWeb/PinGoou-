@@ -88,7 +88,7 @@ const Index = () => {
         <Card className="mx-auto max-w-md overflow-hidden rounded-3xl border bg-background shadow-card">
           <div className="relative p-7 text-left">
             <p className="text-xs font-medium tracking-wide text-muted-foreground">Faturamento de hoje</p>
-            <h1 className="mt-3 text-[44px] font-semibold leading-[1] tracking-tight font-mono">{formatBRL(faturamentoHoje)}</h1>
+            <h1 className="mt-3 text-[44px] font-semibold leading-[1] tracking-tight font-mono-numbers">{formatBRL(faturamentoHoje)}</h1>
             <span className="absolute right-4 top-4 inline-flex items-center gap-1 rounded-full bg-accent px-3 py-1 text-xs font-medium text-accent-foreground">
               <TrendingUp className="h-3.5 w-3.5" />
               Realtime
@@ -116,7 +116,7 @@ const Index = () => {
                   </span>
                 )}
               </div>
-              <p className="mt-2 font-mono text-3xl font-semibold leading-[1] tracking-tight">{formatBRL(totalMes)}</p>
+              <p className="mt-2 font-mono-numbers text-3xl font-semibold leading-[1] tracking-tight">{formatBRL(totalMes)}</p>
               <div className="mt-4 rounded-2xl border bg-background/70 p-3">
                 <p className="text-[11px] text-muted-foreground">Meta</p>
                 {monthlyGoal == null ? (
@@ -136,14 +136,14 @@ const Index = () => {
           <ColorCard tone="indigo">
             <div className="min-h-[160px] p-6">
               <p className="text-xs font-medium tracking-wide text-muted-foreground">Vendas (hoje)</p>
-              <p className="mt-2 font-mono text-3xl font-semibold leading-[1] tracking-tight">{vendasHoje}</p>
+              <p className="mt-2 font-mono-numbers text-3xl font-semibold leading-[1] tracking-tight">{vendasHoje}</p>
               <p className="mt-1 text-sm text-muted-foreground">pedidos realizados hoje</p>
             </div>
           </ColorCard>
           <ColorCard tone="orange">
             <div className="min-h-[160px] p-6">
               <p className="text-xs font-medium tracking-wide text-muted-foreground">Ticket Médio (hoje)</p>
-              <p className="mt-2 font-mono text-3xl font-semibold leading-[1] tracking-tight">{formatBRL(ticketMedio)}</p>
+              <p className="mt-2 font-mono-numbers text-3xl font-semibold leading-[1] tracking-tight">{formatBRL(ticketMedio)}</p>
               <p className="mt-1 text-sm text-muted-foreground">valor médio por pedido</p>
             </div>
           </ColorCard>

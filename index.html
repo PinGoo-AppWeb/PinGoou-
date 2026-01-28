@@ -34,6 +34,27 @@
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:site" content="@Lovable" />
   <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+
+  <!-- Force font loading before rendering -->
+  <script>
+    // Force Inter font loading
+    if ('fonts' in document) {
+      const interFonts = [
+        new FontFace('Inter', 'url(https://fonts.gstatic.com/s/inter/v18/UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuLyfAZ9hiA.woff2)', { weight: '400' }),
+        new FontFace('Inter', 'url(https://fonts.gstatic.com/s/inter/v18/UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuI6fAZ9hiA.woff2)', { weight: '500' }),
+        new FontFace('Inter', 'url(https://fonts.gstatic.com/s/inter/v18/UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuGKYAZ9hiA.woff2)', { weight: '600' }),
+        new FontFace('Inter', 'url(https://fonts.gstatic.com/s/inter/v18/UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuFuYAZ9hiA.woff2)', { weight: '700' })
+      ];
+
+      Promise.all(interFonts.map(font => font.load())).then(fonts => {
+        fonts.forEach(font => document.fonts.add(font));
+        console.log('✅ Inter fonts loaded successfully!');
+      }).catch(err => {
+        console.warn('⚠️ Error loading Inter fonts:', err);
+      });
+    }
+  </script>
+
 </head>
 
 <body>
