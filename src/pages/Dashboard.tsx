@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { EditSaleModal } from "@/components/pdv/EditSaleModal";
 import { useProducts } from "@/hooks/use-products";
+import { cn } from "@/lib/utils";
 
 type Filter = "dia" | "mes" | "ano";
 
@@ -132,7 +133,12 @@ export default function Dashboard() {
                   <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{c.label}</p>
                   <c.icon className="h-4 w-4 text-primary" />
                 </div>
-                <p className="mt-2 text-xl font-semibold tracking-tight font-mono-numbers">{c.value}</p>
+                <p className={cn(
+                  "mt-2 text-xl tracking-tight font-mono-numbers",
+                  c.label === "Faturamento hoje" ? "font-bold text-primary" : "font-semibold"
+                )}>
+                  {c.value}
+                </p>
               </div>
             </Card>
           ))}
