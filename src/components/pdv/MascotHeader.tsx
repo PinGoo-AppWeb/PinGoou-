@@ -181,13 +181,17 @@ export function MascotHeader() {
             style={{
                 left: `${position.x}px`,
                 top: `${position.y}px`,
+                touchAction: 'none', // Bloqueia gestos APENAS no mascote
+                userSelect: 'none',
+                WebkitUserSelect: 'none',
+                WebkitTouchCallout: 'none',
             }}
             onMouseDown={handleMouseDown}
             onMouseUp={handleMouseUp}
             onTouchStart={handleTouchStart}
             onTouchEnd={handleTouchEnd}
         >
-            <div className="w-20 h-20">
+            <div className="w-20 h-20" style={{ pointerEvents: 'none' }}>
                 <MascotAnimated mode="active" />
             </div>
         </div>
