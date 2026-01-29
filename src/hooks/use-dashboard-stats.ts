@@ -1,6 +1,5 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/lib/supabase";
-import { startOfMonth, startOfToday } from "date-fns";
 
 export function useDashboardStats() {
     const [stats, setStats] = useState({
@@ -13,12 +12,13 @@ export function useDashboardStats() {
     });
     const [loading, setLoading] = useState(true);
 
-    const fetchStats = async () => {
+    const fetchStats = useCallback(async () => {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
 
-        const today = startOfToday();
-        const firstDayOfMonth = startOfMonth(today);
+        const now = new Date();
+        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
+        const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0, 0);
 
         // 1. Fetch sales
         const { data: todaySales } = await supabase
@@ -78,11 +78,11 @@ export function useDashboardStats() {
             });
         }
         setLoading(false);
-    };
+    }, []);
 
     useEffect(() => {
         fetchStats();
-    }, []);
+    }, [fetchStats]);
 
     return { ...stats, loading, refresh: fetchStats };
 }

@@ -60,6 +60,7 @@ export default function Dashboard() {
 
   const [sales, setSales] = useState<Sale[]>([]);
   const [editingSale, setEditingSale] = useState<Sale | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   const loadSales = async () => {
     // TODO: Idealmente, filtrar sales também pelo período. 
@@ -109,7 +110,7 @@ export default function Dashboard() {
 
   const handleSaveEdit = () => {
     toast.success("Venda atualizada com sucesso!");
-    setEditingSale(null);
+    setIsEditModalOpen(false);
     loadSales();
     refreshStats();
   };
@@ -164,6 +165,16 @@ export default function Dashboard() {
       </section>
 
       <section className="mt-4 grid gap-3">
+        {totalSales === 0 && !loadingStats && (
+          <Card className="rounded-3xl shadow-card dark:shadow-card-dark border-none bg-background/50 backdrop-blur-md p-6 text-center">
+            <AlertCircle className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
+            <h3 className="text-sm font-semibold mb-1">Nenhuma venda neste período</h3>
+            <p className="text-xs text-muted-foreground">
+              Não há vendas registradas para "{PERIOD_LABELS[period]}". Tente selecionar outro período.
+            </p>
+          </Card>
+        )}
+
         <div className="grid grid-cols-2 gap-3">
           {cards.map((c, idx) => (
             <Card key={c.label} className="rounded-3xl shadow-card dark:shadow-card-dark border-none bg-background/50 backdrop-blur-md">
@@ -251,7 +262,10 @@ export default function Dashboard() {
 
                         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                           <button
-                            onClick={() => setEditingSale(sale)}
+                            onClick={() => {
+                              setEditingSale(sale);
+                              setIsEditModalOpen(true);
+                            }}
                             className="p-2 text-muted-foreground hover:text-primary transition-colors"
                           >
                             <Pencil className="h-3.5 w-3.5" />
@@ -299,8 +313,8 @@ export default function Dashboard() {
         {/* Modal de Edição Completo */}
         <EditSaleModal
           sale={editingSale}
-          open={!!editingSale}
-          onClose={() => setEditingSale(null)}
+          open={isEditModalOpen}
+          onClose={() => setIsEditModalOpen(false)}
           onSave={handleSaveEdit}
           products={products}
         />

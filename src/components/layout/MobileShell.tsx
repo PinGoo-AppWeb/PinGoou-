@@ -13,6 +13,7 @@ function titleFromPath(pathname: string) {
   if (pathname === "/dashboard") return "Dashboard";
   if (pathname === "/produtos") return "Produtos";
   if (pathname === "/relatorios") return "Relatórios";
+  if (pathname === "/despesas") return "Despesas";
   if (pathname === "/configuracoes") return "Configurações";
   return "PDV";
 }

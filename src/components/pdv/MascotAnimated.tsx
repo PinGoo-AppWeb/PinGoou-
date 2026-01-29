@@ -169,7 +169,7 @@ export function MascotAnimated({
 
           @keyframes mascotSleepBounce {
             0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-4px); }
+            50% { transform: translateY(-12px); }
           }
 
           @keyframes sleepMouthSnore {
@@ -205,7 +205,7 @@ export function MascotAnimated({
         // Aplica bounce no container para garantir salto contínuo do mascote inteiro,
         // independente de como o SVG venha (com/sem class no <svg>).
         className={cn(
-          "relative block h-full w-full [&_svg]:h-full [&_svg]:w-full [&_svg]:block transition-all duration-700 ease-in-out scale-[1.65] origin-bottom -mb-4",
+          "relative block h-full w-full [&_svg]:h-full [&_svg]:w-full [&_svg]:block transition-all duration-700 ease-in-out scale-[1.35] origin-bottom -mb-2",
           mode === "active" && "bounce",
           mode === "happy" && "happy-bounce happy-tilt",
           mode === "sleep" && "sleep-bounce",

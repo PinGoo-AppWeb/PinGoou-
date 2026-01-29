@@ -4,7 +4,7 @@ import { ColorCard } from "@/components/pdv/ColorCard";
 import { StackedDeck } from "@/components/pdv/StackedDeck";
 import { Hand, TrendingUp, Loader2 } from "lucide-react";
 import { formatBRL } from "@/lib/pdv-data";
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import { MascotAnimated } from "@/components/pdv/MascotAnimated";
 import { cn } from "@/lib/utils";
 import { useSaleInactivity } from "@/hooks/use-sale-inactivity";
@@ -13,6 +13,7 @@ import { useProfile } from "@/hooks/use-profile";
 import { useDashboardStats } from "@/hooks/use-dashboard-stats";
 
 const Index = () => {
+  const location = useLocation();
   const { profile, loading: loadingProfile } = useProfile();
   const { faturamentoHoje, totalMes, vendasHoje, ticketMedio, loading: loadingStats, refresh: refreshStats } = useDashboardStats();
 
@@ -39,10 +40,10 @@ const Index = () => {
     }
   }, [firstLoad]);
 
-  // 🔄 Recarregar stats SEMPRE que a página Index for exibida
+  // 🔄 Recarregar stats sempre que a rota mudar (ex: voltar de /venda/nova)
   useEffect(() => {
     refreshStats();
-  }, []); // Executa toda vez que o componente monta
+  }, [location.pathname, refreshStats]);
 
   // 🔄 Recarregar stats quando a página volta ao foco (após registrar venda)
   useEffect(() => {

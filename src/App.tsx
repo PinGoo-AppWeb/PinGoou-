@@ -11,6 +11,7 @@ import Dashboard from "@/pages/Dashboard";
 import Products from "@/pages/Products";
 import Reports from "@/pages/Reports";
 import Settings from "@/pages/Settings";
+import Expenses from "@/pages/Expenses";
 import Auth from "@/pages/Auth";
 import { ProtectedRoute } from "@/components/layout/ProtectedRoute";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
@@ -33,6 +34,7 @@ const App = () => (
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/produtos" element={<Products />} />
                 <Route path="/relatorios" element={<Reports />} />
+                <Route path="/despesas" element={<Expenses />} />
                 <Route path="/configuracoes" element={<Settings />} />
               </Route>
             </Route>
