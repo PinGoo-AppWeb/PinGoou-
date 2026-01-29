@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 export type Profile = {
     id: string;
@@ -17,44 +17,51 @@ export type Profile = {
 };
 
 export function useProfile() {
-    const [profile, setProfile] = useState<Profile | null>(null);
-    const [loading, setLoading] = useState(true);
+    const queryClient = useQueryClient();
 
-    const fetchProfile = async () => {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return;
+    const { data: profile, isLoading: loading, refetch: refresh } = useQuery({
+        queryKey: ["profile"],
+        queryFn: async () => {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) throw new Error("No user found");
 
-        const { data, error } = await supabase
-            .from("profiles")
-            .select("*")
-            .eq("id", user.id)
-            .single();
+            const { data, error } = await supabase
+                .from("profiles")
+                .select("*")
+                .eq("id", user.id)
+                .single();
 
-        if (!error && data) {
-            setProfile(data);
-        }
-        setLoading(false);
+            if (error) throw error;
+            return data as Profile;
+        },
+        staleTime: 1000 * 60 * 5, // 5 minutes cache
+    });
+
+    const mutation = useMutation({
+        mutationFn: async (updates: Partial<Profile>) => {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) throw new Error("No user found");
+
+            const { error } = await supabase
+                .from("profiles")
+                .update(updates)
+                .eq("id", user.id);
+
+            if (error) throw error;
+            return updates;
+        },
+        onSuccess: (updates) => {
+            // Optimistic update
+            queryClient.setQueryData(["profile"], (old: Profile | undefined) =>
+                old ? { ...old, ...updates } : old
+            );
+        },
+    });
+
+    return {
+        profile: profile || null,
+        loading,
+        updateProfile: mutation.mutateAsync,
+        refresh
     };
-
-    const updateProfile = async (updates: Partial<Profile>) => {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return;
-
-        const { error } = await supabase
-            .from("profiles")
-            .update(updates)
-            .eq("id", user.id);
-
-        if (!error) {
-            setProfile(prev => prev ? { ...prev, ...updates } : null);
-            return true;
-        }
-        return false;
-    };
-
-    useEffect(() => {
-        fetchProfile();
-    }, []);
-
-    return { profile, loading, updateProfile, refresh: fetchProfile };
 }

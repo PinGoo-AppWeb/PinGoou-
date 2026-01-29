@@ -206,7 +206,6 @@ export default function Dashboard() {
 
   return (
     <main className="px-4 pb-28 pt-6 animate-fade-in">
-      <MascotHeader />
       <section className="flex items-center justify-between gap-3">
         <div>
           <h1 className="text-base font-semibold tracking-tight">Estatísticas</h1>

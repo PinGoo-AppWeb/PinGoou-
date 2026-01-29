@@ -17,7 +17,6 @@ import { useNavigate } from "react-router-dom";
 import { formatBRL } from "@/lib/pdv-data";
 import { cn } from "@/lib/utils";
 import { PremiumUpgradeModal } from "@/components/subscription/PremiumUpgradeModal";
-import { MascotHeader } from "@/components/pdv/MascotHeader";
 
 
 export default function Settings() {
@@ -270,7 +269,6 @@ export default function Settings() {
 
   return (
     <main className="px-4 pb-28 pt-6 animate-fade-in">
-      <MascotHeader />
       <header className="flex items-center justify-between">
         <div>
           <h1 className="text-base font-semibold tracking-tight">Configurações</h1>

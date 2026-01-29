@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
 export type Product = {
     id: string;
@@ -11,83 +11,73 @@ export type Product = {
 };
 
 export function useProducts() {
-    const [products, setProducts] = useState<Product[]>([]);
-    const [loading, setLoading] = useState(true);
+    const queryClient = useQueryClient();
 
-    const fetchProducts = async () => {
-        const { data, error } = await supabase
-            .from("products")
-            .select("*")
-            .order("created_at", { ascending: false });
-
-        if (!error && data) {
-            setProducts(data);
-        }
-        setLoading(false);
-    };
-
-    const addProduct = async (product: Omit<Product, "id" | "user_id">) => {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return null;
-
-        const { data, error } = await supabase
-            .from("products")
-            .insert({ ...product, user_id: user.id })
-            .select()
-            .single();
-
-        if (!error && data) {
-            setProducts(prev => [data, ...prev]);
-            return data;
-        }
-        return null;
-    };
-
-    const deleteProduct = async (id: string) => {
-        try {
-            console.log("🗑️ Tentando excluir produto:", id);
-
-            const { error } = await supabase
+    const { data: products = [], isLoading: loading, refetch: refresh } = useQuery({
+        queryKey: ["products"],
+        queryFn: async () => {
+            const { data, error } = await supabase
                 .from("products")
-                .delete()
-                .eq("id", id);
+                .select("*")
+                .order("created_at", { ascending: false });
 
-            if (error) {
-                console.error("❌ Erro ao excluir produto:", error);
-                console.error("Detalhes do erro:", {
-                    message: error.message,
-                    code: error.code,
-                    details: error.details,
-                    hint: error.hint
-                });
-                return false;
-            }
+            if (error) throw error;
+            return data as Product[];
+        },
+        staleTime: 1000 * 60 * 10, // 10 minutes cache
+    });
 
-            console.log("✅ Produto excluído com sucesso");
-            setProducts(prev => prev.filter(p => p.id !== id));
-            return true;
-        } catch (error) {
-            console.error("❌ Erro geral ao excluir produto:", error);
-            return false;
-        }
+    const addMutation = useMutation({
+        mutationFn: async (product: Omit<Product, "id" | "user_id">) => {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) throw new Error("No user found");
+
+            const { data, error } = await supabase
+                .from("products")
+                .insert({ ...product, user_id: user.id })
+                .select()
+                .single();
+
+            if (error) throw error;
+            return data;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["products"] });
+        },
+    });
+
+    const deleteMutation = useMutation({
+        mutationFn: async (id: string) => {
+            const { error } = await supabase.from("products").delete().eq("id", id);
+            if (error) throw error;
+            return id;
+        },
+        onSuccess: (id) => {
+            queryClient.setQueryData(["products"], (old: Product[] | undefined) =>
+                old ? old.filter((p) => p.id !== id) : []
+            );
+        },
+    });
+
+    const updateMutation = useMutation({
+        mutationFn: async ({ id, updates }: { id: string; updates: Partial<Product> }) => {
+            const { error } = await supabase.from("products").update(updates).eq("id", id);
+            if (error) throw error;
+            return { id, updates };
+        },
+        onSuccess: ({ id, updates }) => {
+            queryClient.setQueryData(["products"], (old: Product[] | undefined) =>
+                old ? old.map((p) => (p.id === id ? { ...p, ...updates } : p)) : []
+            );
+        },
+    });
+
+    return {
+        products,
+        loading,
+        addProduct: addMutation.mutateAsync,
+        deleteProduct: deleteMutation.mutateAsync,
+        updateProduct: (id: string, updates: Partial<Product>) => updateMutation.mutateAsync({ id, updates }),
+        refresh,
     };
-
-    const updateProduct = async (id: string, updates: Partial<Product>) => {
-        const { error } = await supabase
-            .from("products")
-            .update(updates)
-            .eq("id", id);
-
-        if (!error) {
-            setProducts(prev => prev.map(p => p.id === id ? { ...p, ...updates } : p));
-            return true;
-        }
-        return false;
-    };
-
-    useEffect(() => {
-        fetchProducts();
-    }, []);
-
-    return { products, loading, addProduct, deleteProduct, updateProduct, refresh: fetchProducts };
 }

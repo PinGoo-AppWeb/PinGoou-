@@ -11,7 +11,6 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { MascotHeader } from "@/components/pdv/MascotHeader";
 
 const CATEGORIES = [
     { value: "insumo", label: "Insumos" },
@@ -118,7 +117,6 @@ export default function Expenses() {
 
     return (
         <main className="px-4 pb-28 pt-6 animate-fade-in space-y-6">
-            <MascotHeader />
             <section>
                 <h1 className="text-xl font-bold tracking-tight">Despesas</h1>
                 <p className="text-sm text-muted-foreground">Gerencie seus custos e compras.</p>

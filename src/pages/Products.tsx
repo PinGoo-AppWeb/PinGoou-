@@ -8,7 +8,6 @@ import { useProducts, Product } from "@/hooks/use-products";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { MascotHeader } from "@/components/pdv/MascotHeader";
 
 export default function Products() {
   const { products, loading, addProduct, deleteProduct, updateProduct } = useProducts();
@@ -92,7 +91,6 @@ export default function Products() {
 
   return (
     <main className="px-4 pb-28 pt-6 animate-fade-in">
-      <MascotHeader />
       <section>
         <h1 className="text-base font-semibold tracking-tight">Produtos</h1>
         <p className="text-sm text-muted-foreground">Gerencie seu catálogo de produtos.</p>

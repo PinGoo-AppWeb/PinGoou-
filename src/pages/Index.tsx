@@ -7,7 +7,6 @@ import { formatBRL } from "@/lib/pdv-data";
 import { NavLink, useLocation } from "react-router-dom";
 import { MascotAnimated } from "@/components/pdv/MascotAnimated";
 import { cn } from "@/lib/utils";
-import { useSaleInactivity } from "@/hooks/use-sale-inactivity";
 import { Progress } from "@/components/ui/progress";
 import { useProfile } from "@/hooks/use-profile";
 import { useDashboardStats } from "@/hooks/use-dashboard-stats";
@@ -17,38 +16,12 @@ const Index = () => {
   const location = useLocation();
   const { profile, loading: loadingProfile } = useProfile();
   const { faturamentoHoje, totalMes, vendasHoje, ticketMedio, loading: loadingStats, refresh: refreshStats } = useDashboardStats();
-  const { setMood } = useMascotMood(); // Hook para sincronizar mood
+  const { mood } = useMascotMood(); // Hook para obter mood sincronizado
 
   const [cardsExpanded, setCardsExpanded] = useState(false);
-  const sleepSeconds = profile?.mascot_sleep_seconds || 10;
-  const { inactive, msSince } = useSaleInactivity({ inactivityMs: sleepSeconds * 1000, pollMs: 1000 });
-
-  // Forçamos o mascote a começar feliz na primeira carga da sessão
-  const [firstLoad, setFirstLoad] = useState(() => {
-    const sessionSeen = sessionStorage.getItem("pingoou:session-seen");
-    if (!sessionSeen) {
-      sessionStorage.setItem("pingoou:session-seen", "true");
-      return true;
-    }
-    return false;
-  });
-
-  const isHappy = (!inactive && msSince < 8000) || firstLoad;
-  const currentMood = isHappy ? "happy" : (inactive ? "sleep" : "active");
-
-  // Sincronizar mood com contexto global
-  useEffect(() => {
-    setMood(currentMood);
-  }, [currentMood, setMood]);
-
-  useEffect(() => {
-    if (firstLoad) {
-      const timer = setTimeout(() => setFirstLoad(false), 8000);
-      return () => clearTimeout(timer);
-    }
-  }, [firstLoad]);
 
   // 🔄 Recarregar stats sempre que a rota mudar (ex: voltar de /venda/nova)
+
   useEffect(() => {
     refreshStats();
   }, [location.pathname, refreshStats]);
@@ -111,7 +84,7 @@ const Index = () => {
                   "relative z-10 h-full w-full origin-bottom transition-transform duration-500 ease-in-out animate-slide-in-bottom-scaled-centered",
                   cardsExpanded ? "translate-y-[90vh] scale-[0.9]" : "translate-y-0 scale-[0.9]",
                 )}
-                mode={currentMood}
+                mode={mood}
                 title="Nova venda"
               />
             </div>
