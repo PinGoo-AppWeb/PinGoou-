@@ -54,6 +54,7 @@ export function MascotHeader() {
     };
 
     const handleTouchStart = (e: React.TouchEvent) => {
+        e.preventDefault(); // Prevenir scroll da tela
         const touch = e.touches[0];
         setMouseDownPos({ x: touch.clientX, y: touch.clientY });
         setMouseDownTime(Date.now());
@@ -127,10 +128,12 @@ export function MascotHeader() {
             // Se moveu mais de 5px, considera como drag
             if (totalDistance > 5) {
                 setIsDragging(true);
+                e.preventDefault(); // Prevenir scroll quando está arrastando
             }
 
             if (!isDragging && totalDistance <= 5) return;
 
+            e.preventDefault(); // Prevenir scroll da tela
             const newX = touch.clientX - dragStart.x;
             const newY = touch.clientY - dragStart.y;
 
@@ -144,7 +147,7 @@ export function MascotHeader() {
         };
 
         document.addEventListener("mousemove", handleMouseMove);
-        document.addEventListener("touchmove", handleTouchMove);
+        document.addEventListener("touchmove", handleTouchMove, { passive: false });
 
         return () => {
             document.removeEventListener("mousemove", handleMouseMove);
