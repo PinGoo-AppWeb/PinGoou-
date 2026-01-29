@@ -1,6 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ShoppingBag, Wallet, TrendingDown, Users, Loader2, Pencil, Trash2, History, AlertCircle, Calendar } from "lucide-react";
+import { ShoppingBag, DollarSign, TrendingDown, TrendingUp, Loader2, Pencil, Trash2, History, AlertCircle, Calendar, Receipt } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { formatBRL } from "@/lib/pdv-data";
@@ -20,6 +20,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { MascotHeader } from "@/components/pdv/MascotHeader";
 
 const PERIOD_LABELS: Record<FilterPeriod, string> = {
   today: "Hoje",
@@ -28,18 +29,6 @@ const PERIOD_LABELS: Record<FilterPeriod, string> = {
   year: "Este Ano",
   custom: "Personalizado"
 };
-
-type Filter = "dia" | "mes" | "ano";
-
-function makeSeries(filter: Filter) {
-  if (filter === "dia") {
-    return Array.from({ length: 10 }).map((_, i) => ({ x: `${8 + i}h`, y: 20 + i * 7 + (i % 3) * 5 }));
-  }
-  if (filter === "mes") {
-    return Array.from({ length: 12 }).map((_, i) => ({ x: `S${i + 1}`, y: 120 + i * 18 + (i % 4) * 9 }));
-  }
-  return Array.from({ length: 12 }).map((_, i) => ({ x: `M${i + 1}`, y: 900 + i * 55 + (i % 4) * 35 }));
-}
 
 export default function Dashboard() {
   const [period, setPeriod] = useState<FilterPeriod>("today"); // Default para Hoje no Dashboard
@@ -63,9 +52,6 @@ export default function Dashboard() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   const loadSales = async () => {
-    // TODO: Idealmente, filtrar sales também pelo período. 
-    // Por enquanto, fetchSales traz tudo. Vamos manter assim para o histórico visual,
-    // ou futuramente filtrar a lista de histórico também.
     const data = await fetchSales();
     setSales(data);
   };
@@ -98,13 +84,16 @@ export default function Dashboard() {
   }, [refreshStats]);
 
   const handleDelete = async (id: string) => {
+    console.log("🗑️ Tentando excluir venda:", id);
     const success = await deleteSale(id);
     if (success) {
+      console.log("✅ Venda excluída com sucesso");
       toast.success("Venda excluída");
       loadSales();
       refreshStats();
     } else {
-      toast.error("Erro ao excluir venda");
+      console.error("❌ Falha ao excluir venda");
+      toast.error("Erro ao excluir venda. Verifique o console para mais detalhes.");
     }
   };
 
@@ -115,18 +104,93 @@ export default function Dashboard() {
     refreshStats();
   };
 
-  // Mock series para o gráfico (manter visual por enquanto)
-  const data = useMemo(() => makeSeries("dia"), []);
+  // Gerar dados reais do gráfico baseado nas vendas filtradas por período
+  const chartData = useMemo(() => {
+    if (!sales || sales.length === 0) {
+      // Se não há vendas, retornar array vazio ou dados zerados
+      return Array.from({ length: 24 }).map((_, i) => ({
+        x: `${i}h`,
+        y: 0
+      }));
+    }
+
+    // Filtrar vendas pelo período selecionado
+    const now = new Date();
+    let startDate: Date;
+    let endDate: Date;
+
+    switch (period) {
+      case "yesterday":
+        const yesterday = new Date(now);
+        yesterday.setDate(yesterday.getDate() - 1);
+        startDate = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate(), 0, 0, 0, 0);
+        endDate = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate(), 23, 59, 59, 999);
+        break;
+      case "today":
+        startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
+        endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
+        break;
+      case "year":
+        startDate = new Date(now.getFullYear(), 0, 1, 0, 0, 0, 0);
+        endDate = new Date(now.getFullYear(), 11, 31, 23, 59, 59, 999);
+        break;
+      case "month":
+      default:
+        startDate = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0, 0);
+        endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
+        break;
+    }
+
+    const filteredSales = sales.filter(sale => {
+      const saleDate = new Date(sale.created_at);
+      return saleDate >= startDate && saleDate <= endDate;
+    });
+
+    // Agrupar vendas por hora
+    const salesByHour = new Map<number, number>();
+
+    filteredSales.forEach(sale => {
+      const hour = new Date(sale.created_at).getHours();
+      const currentTotal = salesByHour.get(hour) || 0;
+      salesByHour.set(hour, currentTotal + Number(sale.total));
+    });
+
+    // Criar array de 24 horas com os totais
+    return Array.from({ length: 24 }).map((_, hour) => ({
+      x: `${hour}h`,
+      y: salesByHour.get(hour) || 0
+    }));
+  }, [sales, period]);
 
   const cards = useMemo(
     () => [
-      { label: "Faturamento", value: formatBRL(totalRevenue), icon: Wallet },
-      { label: "Vendas", value: totalSales.toString(), icon: ShoppingBag },
-      { label: "Custos", value: formatBRL(totalCosts), icon: Users },
+      {
+        label: "Faturamento",
+        value: formatBRL(totalRevenue),
+        icon: DollarSign,
+        iconColor: "text-primary",
+        valueColor: "text-foreground"
+      },
+      {
+        label: "Vendas",
+        value: totalSales.toString(),
+        icon: Receipt,
+        iconColor: "text-blue-500",
+        valueColor: "text-foreground"
+      },
+      {
+        label: "Custos",
+        value: formatBRL(totalCosts),
+        icon: TrendingDown,
+        iconColor: "text-red-500",
+        valueColor: "text-foreground"
+      },
       {
         label: "Lucro Líquido",
         value: formatBRL(netProfit),
-        icon: TrendingDown,
+        icon: TrendingUp,
+        iconColor: netProfit >= 0 ? "text-green-500" : "text-red-500",
+        valueColor: "text-foreground"
       },
     ],
     [totalRevenue, totalSales, totalCosts, netProfit]
@@ -142,6 +206,7 @@ export default function Dashboard() {
 
   return (
     <main className="px-4 pb-28 pt-6 animate-fade-in">
+      <MascotHeader />
       <section className="flex items-center justify-between gap-3">
         <div>
           <h1 className="text-base font-semibold tracking-tight">Estatísticas</h1>
@@ -181,11 +246,11 @@ export default function Dashboard() {
               <div className="p-4">
                 <div className="flex items-center justify-between">
                   <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{c.label}</p>
-                  <c.icon className="h-4 w-4 text-primary" />
+                  <c.icon className={cn("h-5 w-5", c.iconColor)} />
                 </div>
                 <p className={cn(
-                  "mt-2 text-xl tracking-tight font-mono-numbers",
-                  c.label === "Faturamento" ? "font-bold text-primary" : "font-semibold"
+                  "mt-2 text-xl tracking-tight font-mono-numbers font-bold",
+                  c.valueColor
                 )}>
                   {c.value}
                 </p>
@@ -199,12 +264,12 @@ export default function Dashboard() {
             <div className="flex items-center justify-between">
               <h2 className="text-sm font-semibold tracking-tight">Performance diária</h2>
               <span className="rounded-full bg-primary/10 px-3 py-1 text-[11px] font-semibold text-primary">
-                ESTIMATIVA
+                TEMPO REAL
               </span>
             </div>
             <div className="mt-3 h-44 w-full">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={data}>
+                <LineChart data={chartData}>
                   <XAxis dataKey="x" hide />
                   <YAxis hide />
                   <Tooltip
@@ -214,6 +279,8 @@ export default function Dashboard() {
                       background: "hsl(var(--background))",
                       boxShadow: "var(--shadow-card)",
                     }}
+                    formatter={(value: number) => [formatBRL(value), "Vendas"]}
+                    labelFormatter={(label) => `Horário: ${label}`}
                   />
                   <Line
                     type="monotone"
@@ -260,20 +327,20 @@ export default function Dashboard() {
                       <div className="flex items-center gap-4">
                         <p className="text-sm font-semibold font-mono-numbers">{formatBRL(sale.total)}</p>
 
-                        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <div className="flex items-center gap-1 opacity-60 hover:opacity-100 transition-opacity">
                           <button
                             onClick={() => {
                               setEditingSale(sale);
                               setIsEditModalOpen(true);
                             }}
-                            className="p-2 text-muted-foreground hover:text-primary transition-colors"
+                            className="p-2 text-muted-foreground hover:text-primary transition-colors rounded-lg hover:bg-primary/10"
                           >
                             <Pencil className="h-3.5 w-3.5" />
                           </button>
 
                           <Dialog>
                             <DialogTrigger asChild>
-                              <button className="p-2 text-muted-foreground hover:text-destructive transition-colors">
+                              <button className="p-2 text-muted-foreground hover:text-destructive transition-colors rounded-lg hover:bg-destructive/10">
                                 <Trash2 className="h-3.5 w-3.5" />
                               </button>
                             </DialogTrigger>

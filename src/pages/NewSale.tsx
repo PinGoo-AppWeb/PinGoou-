@@ -62,8 +62,23 @@ export default function NewSale() {
       return acc + (p ? p.price * it.qty : 0);
     }, 0);
   }, [items, productsById]);
-  const taxaDelivery = useMemo(() => (delivery ? 6 : 0), [delivery]);
-  const total = useMemo(() => subtotal + taxaDelivery, [subtotal, taxaDelivery]);
+
+  const taxaDelivery = useMemo(() => (delivery ? (profile?.delivery_fee_brl || 0) : 0), [delivery, profile]);
+
+  // Calcular taxa de cartão (repassada ao cliente)
+  const taxaCartao = useMemo(() => {
+    if (payment === "Crédito") {
+      const rate = profile?.card_rate_credit || 0;
+      return subtotal * (rate / 100);
+    }
+    if (payment === "Débito") {
+      const rate = profile?.card_rate_debit || 0;
+      return subtotal * (rate / 100);
+    }
+    return 0;
+  }, [payment, subtotal, profile]);
+
+  const total = useMemo(() => subtotal + taxaDelivery + taxaCartao, [subtotal, taxaDelivery, taxaCartao]);
 
   const steps: Step[] = useMemo(() => ["produto", "quantidade", "pagamento", "delivery", "data", "confirmar"], []);
   const current = stepIndex(step);
@@ -357,6 +372,33 @@ export default function NewSale() {
             <h2 className="text-base font-semibold">Resumo</h2>
             <span className="font-mono-numbers text-lg font-bold">{formatBRL(total)}</span>
           </div>
+          <Separator className="my-4" />
+
+          {/* Detalhamento de valores */}
+          <div className="space-y-2 text-sm mb-4">
+            <div className="flex justify-between text-muted-foreground">
+              <span>Subtotal</span>
+              <span className="text-foreground font-medium font-mono-numbers">{formatBRL(subtotal)}</span>
+            </div>
+            {taxaDelivery > 0 && (
+              <div className="flex justify-between text-muted-foreground">
+                <span>Taxa Delivery</span>
+                <span className="text-foreground font-medium font-mono-numbers">+ {formatBRL(taxaDelivery)}</span>
+              </div>
+            )}
+            {taxaCartao > 0 && (
+              <div className="flex justify-between text-orange-600">
+                <span>Taxa Cartão ({payment})</span>
+                <span className="font-medium font-mono-numbers">+ {formatBRL(taxaCartao)}</span>
+              </div>
+            )}
+            <Separator className="my-2" />
+            <div className="flex justify-between font-bold">
+              <span>Total</span>
+              <span className="font-mono-numbers text-primary">{formatBRL(total)}</span>
+            </div>
+          </div>
+
           <Separator className="my-4" />
           <div className="space-y-2 text-sm">
             <div className="flex justify-between text-muted-foreground"><span>Método</span><span className="text-foreground font-medium">{payment}</span></div>

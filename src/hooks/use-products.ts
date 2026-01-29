@@ -44,16 +44,32 @@ export function useProducts() {
     };
 
     const deleteProduct = async (id: string) => {
-        const { error } = await supabase
-            .from("products")
-            .delete()
-            .eq("id", id);
+        try {
+            console.log("🗑️ Tentando excluir produto:", id);
 
-        if (!error) {
+            const { error } = await supabase
+                .from("products")
+                .delete()
+                .eq("id", id);
+
+            if (error) {
+                console.error("❌ Erro ao excluir produto:", error);
+                console.error("Detalhes do erro:", {
+                    message: error.message,
+                    code: error.code,
+                    details: error.details,
+                    hint: error.hint
+                });
+                return false;
+            }
+
+            console.log("✅ Produto excluído com sucesso");
             setProducts(prev => prev.filter(p => p.id !== id));
             return true;
+        } catch (error) {
+            console.error("❌ Erro geral ao excluir produto:", error);
+            return false;
         }
-        return false;
     };
 
     const updateProduct = async (id: string, updates: Partial<Product>) => {

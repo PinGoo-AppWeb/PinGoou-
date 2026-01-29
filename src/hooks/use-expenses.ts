@@ -68,18 +68,35 @@ export function useExpenses() {
     };
 
     const deleteExpense = async (id: string) => {
-        setLoading(true);
-        const { error } = await supabase
-            .from("expenses")
-            .delete()
-            .eq("id", id);
+        try {
+            console.log("🗑️ Tentando excluir despesa:", id);
+            setLoading(true);
 
-        if (error) {
-            console.error("Erro ao deletar despesa:", error);
+            const { error } = await supabase
+                .from("expenses")
+                .delete()
+                .eq("id", id);
+
+            if (error) {
+                console.error("❌ Erro ao deletar despesa:", error);
+                console.error("Detalhes do erro:", {
+                    message: error.message,
+                    code: error.code,
+                    details: error.details,
+                    hint: error.hint
+                });
+                setLoading(false);
+                return false;
+            }
+
+            console.log("✅ Despesa excluída com sucesso");
+            setLoading(false);
+            return true;
+        } catch (error) {
+            console.error("❌ Erro geral ao excluir despesa:", error);
+            setLoading(false);
+            return false;
         }
-
-        setLoading(false);
-        return !error;
     };
 
     const updateExpense = async (id: string, updates: Partial<CreateExpenseData>) => {

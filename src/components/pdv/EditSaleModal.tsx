@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 import type { Sale, SaleItem } from "@/hooks/use-sales";
 import type { Product } from "@/hooks/use-products";
 import { supabase } from "@/lib/supabase";
+import { useProfile } from "@/hooks/use-profile";
 
 type SaleItemWithProduct = SaleItem & {
     product_name?: string;
@@ -24,6 +25,7 @@ type EditSaleModalProps = {
 };
 
 export function EditSaleModal({ sale, open, onClose, onSave, products }: EditSaleModalProps) {
+    const { profile } = useProfile();
     const [loading, setLoading] = useState(false);
     const [loadingItems, setLoadingItems] = useState(false);
     const [items, setItems] = useState<SaleItemWithProduct[]>([]);
@@ -63,7 +65,7 @@ export function EditSaleModal({ sale, open, onClose, onSave, products }: EditSal
         return items.reduce((acc, item) => acc + item.price_at_sale * item.qty, 0);
     }, [items]);
 
-    const taxaDelivery = useMemo(() => (isDelivery ? 6 : 0), [isDelivery]);
+    const taxaDelivery = useMemo(() => (isDelivery ? (profile?.delivery_fee_brl || 0) : 0), [isDelivery, profile]);
     const total = useMemo(() => subtotal + taxaDelivery, [subtotal, taxaDelivery]);
 
     const handleUpdateQuantity = (productId: string, delta: number) => {
@@ -108,6 +110,8 @@ export function EditSaleModal({ sale, open, onClose, onSave, products }: EditSal
         setLoading(true);
 
         try {
+            console.log("🔄 Iniciando atualização da venda:", sale.id);
+
             // 1. Atualizar a venda principal
             const { error: saleError } = await supabase
                 .from("sales")
@@ -120,12 +124,27 @@ export function EditSaleModal({ sale, open, onClose, onSave, products }: EditSal
                 })
                 .eq("id", sale.id);
 
-            if (saleError) throw saleError;
+            if (saleError) {
+                console.error("❌ Erro ao atualizar venda:", saleError);
+                throw new Error(`Erro ao atualizar venda: ${saleError.message}`);
+            }
+
+            console.log("✅ Venda atualizada com sucesso");
 
             // 2. Deletar itens antigos
-            await supabase.from("sale_items").delete().eq("sale_id", sale.id);
+            console.log("🗑️ Deletando itens antigos...");
+            const { error: deleteError } = await supabase
+                .from("sale_items")
+                .delete()
+                .eq("sale_id", sale.id);
+
+            if (deleteError) {
+                console.error("❌ Erro ao deletar itens:", deleteError);
+                throw new Error(`Erro ao deletar itens: ${deleteError.message}`);
+            }
 
             // 3. Inserir novos itens
+            console.log("➕ Inserindo novos itens...");
             const itemsToInsert = items.map((item) => ({
                 sale_id: sale.id,
                 product_id: item.product_id,
@@ -137,12 +156,19 @@ export function EditSaleModal({ sale, open, onClose, onSave, products }: EditSal
                 .from("sale_items")
                 .insert(itemsToInsert);
 
-            if (itemsError) throw itemsError;
+            if (itemsError) {
+                console.error("❌ Erro ao inserir itens:", itemsError);
+                throw new Error(`Erro ao inserir itens: ${itemsError.message}`);
+            }
 
+            console.log("✅ Venda editada com sucesso!");
             onSave();
             onClose();
-        } catch (error) {
-            console.error("Erro ao atualizar venda:", error);
+        } catch (error: any) {
+            console.error("❌ Erro geral ao atualizar venda:", error);
+            // Importar toast
+            const { toast } = await import("sonner");
+            toast.error(error.message || "Erro ao atualizar venda");
         } finally {
             setLoading(false);
         }

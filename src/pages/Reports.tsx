@@ -12,6 +12,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { MascotHeader } from "@/components/pdv/MascotHeader";
 
 const PERIOD_LABELS: Record<FilterPeriod, string> = {
   today: "Hoje",
@@ -45,6 +46,7 @@ export default function Reports() {
 
   return (
     <main className="px-4 pb-28 pt-6 animate-fade-in">
+      <MascotHeader />
       <section className="flex items-center justify-between">
         <div>
           <h1 className="text-base font-semibold tracking-tight">Relatórios</h1>

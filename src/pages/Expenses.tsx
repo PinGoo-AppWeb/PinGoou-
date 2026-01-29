@@ -11,6 +11,7 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { MascotHeader } from "@/components/pdv/MascotHeader";
 
 const CATEGORIES = [
     { value: "insumo", label: "Insumos" },
@@ -87,12 +88,15 @@ export default function Expenses() {
 
     const handleDelete = async (id: string) => {
         if (confirm("Tem certeza que deseja excluir esta despesa?")) {
+            console.log("🔄 Iniciando exclusão de despesa:", id);
             const success = await deleteExpense(id);
             if (success) {
+                console.log("✅ Despesa excluída com sucesso no componente");
                 toast.success("Despesa removida");
                 loadData();
             } else {
-                toast.error("Erro ao remover despesa");
+                console.error("❌ Falha ao excluir despesa no componente");
+                toast.error("Erro ao remover despesa. Verifique o console para mais detalhes.");
             }
         }
     };
@@ -114,6 +118,7 @@ export default function Expenses() {
 
     return (
         <main className="px-4 pb-28 pt-6 animate-fade-in space-y-6">
+            <MascotHeader />
             <section>
                 <h1 className="text-xl font-bold tracking-tight">Despesas</h1>
                 <p className="text-sm text-muted-foreground">Gerencie seus custos e compras.</p>

@@ -3,11 +3,12 @@ import { ColorCard } from "@/components/pdv/ColorCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { formatBRL } from "@/lib/pdv-data";
-import { Plus, Tag, Trash2, Loader2, Pencil } from "lucide-react"; // Import Pencil
+import { Plus, Tag, Trash2, Loader2, Pencil, AlertCircle } from "lucide-react";
 import { useProducts, Product } from "@/hooks/use-products";
 import { toast } from "sonner";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"; // Import Dialog components
-import { Label } from "@/components/ui/label"; // Import Label
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { MascotHeader } from "@/components/pdv/MascotHeader";
 
 export default function Products() {
   const { products, loading, addProduct, deleteProduct, updateProduct } = useProducts();
@@ -22,6 +23,7 @@ export default function Products() {
   const [editPrice, setEditPrice] = useState("");
   const [editCost, setEditCost] = useState("");
   const [isSavingEdit, setIsSavingEdit] = useState(false);
+  const [deletingProduct, setDeletingProduct] = useState<Product | null>(null);
 
   const canAdd = useMemo(() => name.trim().length >= 2 && Number(price) > 0 && Number(costPrice) >= 0, [name, price, costPrice]);
 
@@ -47,13 +49,14 @@ export default function Products() {
   };
 
   const handleDeleteProduct = async (id: string) => {
-    if (confirm("Deseja realmente excluir este produto?")) {
-      const success = await deleteProduct(id);
-      if (success) {
-        toast.success("Produto excluído.");
-      } else {
-        toast.error("Erro ao excluir produto.");
-      }
+    console.log("🔄 Iniciando exclusão de produto:", id);
+    const success = await deleteProduct(id);
+    if (success) {
+      console.log("✅ Produto excluído com sucesso no componente");
+      toast.success("Produto excluído.");
+    } else {
+      console.error("❌ Falha ao excluir produto no componente");
+      toast.error("Erro ao excluir produto. Verifique o console para mais detalhes.");
     }
   };
 
@@ -89,6 +92,7 @@ export default function Products() {
 
   return (
     <main className="px-4 pb-28 pt-6 animate-fade-in">
+      <MascotHeader />
       <section>
         <h1 className="text-base font-semibold tracking-tight">Produtos</h1>
         <p className="text-sm text-muted-foreground">Gerencie seu catálogo de produtos.</p>
@@ -161,14 +165,42 @@ export default function Products() {
                     >
                       <Pencil className="h-4 w-4" />
                     </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                      onClick={() => handleDeleteProduct(p.id)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                          onClick={() => setDeletingProduct(p)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="sm:max-w-md border-none bg-background/95 backdrop-blur-xl rounded-3xl">
+                        <DialogHeader>
+                          <DialogTitle className="flex items-center gap-2 text-destructive">
+                            <AlertCircle className="h-5 w-5" />
+                            Excluir Produto?
+                          </DialogTitle>
+                          <DialogDescription>
+                            Tem certeza que deseja excluir "{p.name}"? Esta ação não pode ser desfeita.
+                          </DialogDescription>
+                        </DialogHeader>
+                        <DialogFooter className="flex gap-2">
+                          <Button variant="outline" className="flex-1 rounded-2xl" onClick={() => setDeletingProduct(null)}>Cancelar</Button>
+                          <Button
+                            variant="destructive"
+                            className="flex-1 rounded-2xl"
+                            onClick={() => {
+                              handleDeleteProduct(p.id);
+                              setDeletingProduct(null);
+                            }}
+                          >
+                            Excluir
+                          </Button>
+                        </DialogFooter>
+                      </DialogContent>
+                    </Dialog>
                   </div>
                 </div>
               </ColorCard>

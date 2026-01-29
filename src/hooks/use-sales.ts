@@ -88,12 +88,43 @@ export function useSales() {
 
     const deleteSale = async (saleId: string) => {
         setLoading(true);
-        // Supabase with Cascade delete will handle sale_items if configured, 
-        // otherwise we do it manually. Let's assume manual for safety.
-        await supabase.from("sale_items").delete().eq("sale_id", saleId);
-        const { error } = await supabase.from("sales").delete().eq("id", saleId);
-        setLoading(false);
-        return !error;
+        try {
+            console.log("🔄 Iniciando exclusão da venda:", saleId);
+
+            // 1. Deletar itens da venda primeiro (FK constraint)
+            console.log("🗑️ Deletando itens da venda...");
+            const { error: itemsError } = await supabase
+                .from("sale_items")
+                .delete()
+                .eq("sale_id", saleId);
+
+            if (itemsError) {
+                console.error("❌ Erro ao deletar itens:", itemsError);
+                throw itemsError;
+            }
+
+            console.log("✅ Itens deletados");
+
+            // 2. Deletar a venda
+            console.log("🗑️ Deletando venda...");
+            const { error: saleError } = await supabase
+                .from("sales")
+                .delete()
+                .eq("id", saleId);
+
+            if (saleError) {
+                console.error("❌ Erro ao deletar venda:", saleError);
+                throw saleError;
+            }
+
+            console.log("✅ Venda deletada com sucesso");
+            setLoading(false);
+            return true;
+        } catch (error) {
+            console.error("❌ Erro geral ao deletar venda:", error);
+            setLoading(false);
+            return false;
+        }
     };
 
     const updateSale = async (saleId: string, updates: Partial<Sale>) => {

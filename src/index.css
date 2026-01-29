@@ -229,4 +229,13 @@ All colors MUST be HSL.
     letter-spacing: -0.05em;
     font-feature-settings: "tnum" 1, "zero";
   }
+
+  /* Toaster - Garantir que apareça acima de tudo */
+  .toaster {
+    z-index: 9999 !important;
+  }
+
+  .toaster>* {
+    margin-top: 1rem;
+  }
 }
