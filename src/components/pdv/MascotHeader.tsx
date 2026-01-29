@@ -55,6 +55,7 @@ export function MascotHeader() {
 
     const handleTouchStart = (e: React.TouchEvent) => {
         e.preventDefault(); // Prevenir scroll da tela
+        e.stopPropagation(); // Evitar propagação do evento
         const touch = e.touches[0];
         setMouseDownPos({ x: touch.clientX, y: touch.clientY });
         setMouseDownTime(Date.now());
@@ -79,6 +80,8 @@ export function MascotHeader() {
     };
 
     const handleTouchEnd = (e: React.TouchEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
         const timeDiff = Date.now() - mouseDownTime;
         const touch = e.changedTouches[0];
         const distanceX = Math.abs(touch.clientX - mouseDownPos.x);
@@ -162,6 +165,9 @@ export function MascotHeader() {
             style={{
                 left: `${position.x}px`,
                 top: `${position.y}px`,
+                touchAction: 'none', // Bloqueia todos os gestos de touch padrão
+                userSelect: 'none',
+                WebkitUserSelect: 'none',
             }}
             onMouseDown={handleMouseDown}
             onMouseUp={handleMouseUp}
