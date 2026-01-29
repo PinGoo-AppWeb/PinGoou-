@@ -54,8 +54,7 @@ export function MascotHeader() {
     };
 
     const handleTouchStart = (e: React.TouchEvent) => {
-        e.preventDefault(); // Prevenir scroll da tela
-        e.stopPropagation(); // Evitar propagação do evento
+        // NÃO prevenir aqui - deixa o scroll funcionar normalmente
         const touch = e.touches[0];
         setMouseDownPos({ x: touch.clientX, y: touch.clientY });
         setMouseDownTime(Date.now());
@@ -80,8 +79,6 @@ export function MascotHeader() {
     };
 
     const handleTouchEnd = (e: React.TouchEvent) => {
-        e.preventDefault();
-        e.stopPropagation();
         const timeDiff = Date.now() - mouseDownTime;
         const touch = e.changedTouches[0];
         const distanceX = Math.abs(touch.clientX - mouseDownPos.x);
@@ -128,15 +125,15 @@ export function MascotHeader() {
             const distanceY = Math.abs(touch.clientY - mouseDownPos.y);
             const totalDistance = Math.sqrt(distanceX * distanceX + distanceY * distanceY);
 
-            // Se moveu mais de 5px, considera como drag
+            // Se moveu mais de 5px, considera como drag e AGORA SIM bloqueia o scroll
             if (totalDistance > 5) {
                 setIsDragging(true);
-                e.preventDefault(); // Prevenir scroll quando está arrastando
+                e.preventDefault(); // Só previne quando está realmente arrastando
             }
 
             if (!isDragging && totalDistance <= 5) return;
 
-            e.preventDefault(); // Prevenir scroll da tela
+            e.preventDefault(); // Prevenir scroll da tela quando está arrastando
             const newX = touch.clientX - dragStart.x;
             const newY = touch.clientY - dragStart.y;
 
@@ -165,9 +162,7 @@ export function MascotHeader() {
             style={{
                 left: `${position.x}px`,
                 top: `${position.y}px`,
-                touchAction: 'none', // Bloqueia todos os gestos de touch padrão
-                userSelect: 'none',
-                WebkitUserSelect: 'none',
+                // Removido touch-action: none para permitir scroll normal
             }}
             onMouseDown={handleMouseDown}
             onMouseUp={handleMouseUp}
