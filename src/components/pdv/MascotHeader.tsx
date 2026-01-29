@@ -1,24 +1,101 @@
 import { MascotAnimated } from "./MascotAnimated";
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { useMascotMood } from "@/contexts/MascotContext";
+
+// Constantes
+const STORAGE_KEY = "mascot-position";
+const MASCOT_SIZE = 80;
+const MASCOT_PADDING = 16;
+const MENU_HEIGHT = 80;
+const DRAG_THRESHOLD = 5; // pixels
+const CLICK_TIME_THRESHOLD = 200; // ms
 
 /**
- * Mascote pequeno para páginas
- * Clique: Inicia fluxo de vendas
- * Pressionar e arrastar: Reposiciona o mascote
+ * Mascote interativo flutuante
+ * - Clique rápido: Navega para nova venda
+ * - Pressionar e arrastar: Reposiciona o mascote
+ * - Posição persistida no localStorage
  */
 export function MascotHeader() {
     const navigate = useNavigate();
-    const STORAGE_KEY = "mascot-position";
+    const mascotRef = useRef<HTMLDivElement>(null);
+    const { mood } = useMascotMood(); // Obter mood compartilhado
 
-    // Calcular posição padrão imediatamente
-    const getDefaultPosition = () => {
-        const defaultX = window.innerWidth - 96;
-        const defaultY = window.innerHeight - 176;
-        return { x: defaultX, y: defaultY };
+    // Estados
+    const [position, setPosition] = useState(() => getInitialPosition());
+    const [isDragging, setIsDragging] = useState(false);
+    const [isMouseDown, setIsMouseDown] = useState(false);
+    const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+    const [mouseDownPos, setMouseDownPos] = useState({ x: 0, y: 0 });
+    const [mouseDownTime, setMouseDownTime] = useState(0);
+
+    // Salvar posição no localStorage quando mudar
+    useEffect(() => {
+        if (position.x !== 0 || position.y !== 0) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(position));
+        }
+    }, [position]);
+
+    // Event handlers
+    const handleMouseDown = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        startDrag(e.clientX, e.clientY);
     };
 
-    const [position, setPosition] = useState(() => {
+    const handleTouchStart = (e: React.TouchEvent) => {
+        e.stopPropagation();
+        const touch = e.touches[0];
+        startDrag(touch.clientX, touch.clientY);
+    };
+
+    const handleMouseUp = (e: React.MouseEvent) => {
+        if (!isMouseDown) return;
+        endDrag(e.clientX, e.clientY);
+    };
+
+    const handleTouchEnd = (e: React.TouchEvent) => {
+        if (!isMouseDown) return;
+        const touch = e.changedTouches[0];
+        endDrag(touch.clientX, touch.clientY);
+    };
+
+    // Gerenciar eventos de movimento (mouse e touch)
+    useEffect(() => {
+        if (!isMouseDown) return;
+
+        const handleMouseMove = (e: MouseEvent) => {
+            handleMove(e.clientX, e.clientY);
+        };
+
+        const handleTouchMove = (e: TouchEvent) => {
+            const touch = e.touches[0];
+            const shouldDrag = handleMove(touch.clientX, touch.clientY);
+            if (shouldDrag) {
+                e.preventDefault();
+            }
+        };
+
+        const handleGlobalEnd = () => {
+            setIsDragging(false);
+            setIsMouseDown(false);
+        };
+
+        document.addEventListener("mousemove", handleMouseMove);
+        document.addEventListener("mouseup", handleGlobalEnd);
+        document.addEventListener("touchmove", handleTouchMove, { passive: false });
+        document.addEventListener("touchend", handleGlobalEnd);
+
+        return () => {
+            document.removeEventListener("mousemove", handleMouseMove);
+            document.removeEventListener("mouseup", handleGlobalEnd);
+            document.removeEventListener("touchmove", handleTouchMove);
+            document.removeEventListener("touchend", handleGlobalEnd);
+        };
+    }, [isMouseDown, isDragging, dragStart, mouseDownPos]);
+
+    // Funções auxiliares
+    function getInitialPosition() {
         const saved = localStorage.getItem(STORAGE_KEY);
         if (saved) {
             try {
@@ -28,151 +105,70 @@ export function MascotHeader() {
             }
         }
         return getDefaultPosition();
-    });
+    }
 
-    const [isDragging, setIsDragging] = useState(false);
-    const [isMouseDown, setIsMouseDown] = useState(false); // Nova flag
-    const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
-    const [mouseDownPos, setMouseDownPos] = useState({ x: 0, y: 0 });
-    const [mouseDownTime, setMouseDownTime] = useState(0);
-    const mascotRef = useRef<HTMLDivElement>(null);
+    function getDefaultPosition() {
+        return {
+            x: window.innerWidth - MASCOT_SIZE - MASCOT_PADDING,
+            y: window.innerHeight - MASCOT_SIZE - MENU_HEIGHT - MASCOT_PADDING,
+        };
+    }
 
-    useEffect(() => {
-        if (position.x !== 0 || position.y !== 0) {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(position));
-        }
-    }, [position]);
-
-    const handleMouseDown = (e: React.MouseEvent) => {
-        e.stopPropagation();
+    function startDrag(clientX: number, clientY: number) {
         setIsMouseDown(true);
-        setMouseDownPos({ x: e.clientX, y: e.clientY });
+        setMouseDownPos({ x: clientX, y: clientY });
         setMouseDownTime(Date.now());
         setDragStart({
-            x: e.clientX - position.x,
-            y: e.clientY - position.y,
+            x: clientX - position.x,
+            y: clientY - position.y,
         });
-    };
+    }
 
-    const handleTouchStart = (e: React.TouchEvent) => {
-        e.stopPropagation();
-        setIsMouseDown(true);
-        const touch = e.touches[0];
-        setMouseDownPos({ x: touch.clientX, y: touch.clientY });
-        setMouseDownTime(Date.now());
-        setDragStart({
-            x: touch.clientX - position.x,
-            y: touch.clientY - position.y,
-        });
-    };
-
-    const handleMouseUp = (e: React.MouseEvent) => {
-        if (!isMouseDown) return;
-
+    function endDrag(clientX: number, clientY: number) {
         const timeDiff = Date.now() - mouseDownTime;
-        const distanceX = Math.abs(e.clientX - mouseDownPos.x);
-        const distanceY = Math.abs(e.clientY - mouseDownPos.y);
-        const totalDistance = Math.sqrt(distanceX * distanceX + distanceY * distanceY);
+        const distance = calculateDistance(clientX, clientY, mouseDownPos.x, mouseDownPos.y);
 
-        if (timeDiff < 200 && totalDistance < 5 && !isDragging) {
+        // Clique rápido sem movimento = navegar
+        if (timeDiff < CLICK_TIME_THRESHOLD && distance < DRAG_THRESHOLD && !isDragging) {
             navigate("/venda/nova");
         }
 
         setIsDragging(false);
         setIsMouseDown(false);
-    };
+    }
 
-    const handleTouchEnd = (e: React.TouchEvent) => {
-        if (!isMouseDown) return;
+    function handleMove(clientX: number, clientY: number): boolean {
+        const distance = calculateDistance(clientX, clientY, mouseDownPos.x, mouseDownPos.y);
 
-        const timeDiff = Date.now() - mouseDownTime;
-        const touch = e.changedTouches[0];
-        const distanceX = Math.abs(touch.clientX - mouseDownPos.x);
-        const distanceY = Math.abs(touch.clientY - mouseDownPos.y);
-        const totalDistance = Math.sqrt(distanceX * distanceX + distanceY * distanceY);
-
-        if (timeDiff < 200 && totalDistance < 5 && !isDragging) {
-            navigate("/venda/nova");
+        // Ativar modo drag se moveu mais que o threshold
+        if (distance > DRAG_THRESHOLD) {
+            setIsDragging(true);
         }
 
-        setIsDragging(false);
-        setIsMouseDown(false);
-    };
+        // Só move se estiver em modo drag
+        if (!isDragging && distance <= DRAG_THRESHOLD) {
+            return false;
+        }
 
-    useEffect(() => {
-        if (!isMouseDown) return; // Só adiciona listeners se começou no mascote
+        // Calcular nova posição com limites
+        const newX = clientX - dragStart.x;
+        const newY = clientY - dragStart.y;
+        const maxX = window.innerWidth - MASCOT_SIZE;
+        const maxY = window.innerHeight - MASCOT_SIZE;
 
-        const handleMouseMove = (e: MouseEvent) => {
-            const distanceX = Math.abs(e.clientX - mouseDownPos.x);
-            const distanceY = Math.abs(e.clientY - mouseDownPos.y);
-            const totalDistance = Math.sqrt(distanceX * distanceX + distanceY * distanceY);
+        setPosition({
+            x: Math.max(0, Math.min(newX, maxX)),
+            y: Math.max(0, Math.min(newY, maxY)),
+        });
 
-            if (totalDistance > 5) {
-                setIsDragging(true);
-            }
+        return true; // Indica que deve prevenir default
+    }
 
-            if (!isDragging && totalDistance <= 5) return;
-
-            const newX = e.clientX - dragStart.x;
-            const newY = e.clientY - dragStart.y;
-
-            const maxX = window.innerWidth - 80;
-            const maxY = window.innerHeight - 80;
-
-            setPosition({
-                x: Math.max(0, Math.min(newX, maxX)),
-                y: Math.max(0, Math.min(newY, maxY)),
-            });
-        };
-
-        const handleTouchMove = (e: TouchEvent) => {
-            const touch = e.touches[0];
-            const distanceX = Math.abs(touch.clientX - mouseDownPos.x);
-            const distanceY = Math.abs(touch.clientY - mouseDownPos.y);
-            const totalDistance = Math.sqrt(distanceX * distanceX + distanceY * distanceY);
-
-            if (totalDistance > 5) {
-                setIsDragging(true);
-                e.preventDefault();
-            }
-
-            if (!isDragging && totalDistance <= 5) return;
-
-            e.preventDefault();
-            const newX = touch.clientX - dragStart.x;
-            const newY = touch.clientY - dragStart.y;
-
-            const maxX = window.innerWidth - 80;
-            const maxY = window.innerHeight - 80;
-
-            setPosition({
-                x: Math.max(0, Math.min(newX, maxX)),
-                y: Math.max(0, Math.min(newY, maxY)),
-            });
-        };
-
-        const handleGlobalMouseUp = () => {
-            setIsDragging(false);
-            setIsMouseDown(false);
-        };
-
-        const handleGlobalTouchEnd = () => {
-            setIsDragging(false);
-            setIsMouseDown(false);
-        };
-
-        document.addEventListener("mousemove", handleMouseMove);
-        document.addEventListener("mouseup", handleGlobalMouseUp);
-        document.addEventListener("touchmove", handleTouchMove, { passive: false });
-        document.addEventListener("touchend", handleGlobalTouchEnd);
-
-        return () => {
-            document.removeEventListener("mousemove", handleMouseMove);
-            document.removeEventListener("mouseup", handleGlobalMouseUp);
-            document.removeEventListener("touchmove", handleTouchMove);
-            document.removeEventListener("touchend", handleGlobalTouchEnd);
-        };
-    }, [isMouseDown, isDragging, dragStart, mouseDownPos]);
+    function calculateDistance(x1: number, y1: number, x2: number, y2: number): number {
+        const dx = x1 - x2;
+        const dy = y1 - y2;
+        return Math.sqrt(dx * dx + dy * dy);
+    }
 
     return (
         <div
@@ -181,7 +177,7 @@ export function MascotHeader() {
             style={{
                 left: `${position.x}px`,
                 top: `${position.y}px`,
-                touchAction: 'none', // Bloqueia gestos APENAS no mascote
+                touchAction: 'none',
                 userSelect: 'none',
                 WebkitUserSelect: 'none',
                 WebkitTouchCallout: 'none',
@@ -192,7 +188,7 @@ export function MascotHeader() {
             onTouchEnd={handleTouchEnd}
         >
             <div className="w-20 h-20" style={{ pointerEvents: 'none' }}>
-                <MascotAnimated mode="active" />
+                <MascotAnimated mode={mood} />
             </div>
         </div>
     );

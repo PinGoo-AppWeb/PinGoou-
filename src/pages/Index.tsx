@@ -11,11 +11,13 @@ import { useSaleInactivity } from "@/hooks/use-sale-inactivity";
 import { Progress } from "@/components/ui/progress";
 import { useProfile } from "@/hooks/use-profile";
 import { useDashboardStats } from "@/hooks/use-dashboard-stats";
+import { useMascotMood } from "@/contexts/MascotContext";
 
 const Index = () => {
   const location = useLocation();
   const { profile, loading: loadingProfile } = useProfile();
   const { faturamentoHoje, totalMes, vendasHoje, ticketMedio, loading: loadingStats, refresh: refreshStats } = useDashboardStats();
+  const { setMood } = useMascotMood(); // Hook para sincronizar mood
 
   const [cardsExpanded, setCardsExpanded] = useState(false);
   const sleepSeconds = profile?.mascot_sleep_seconds || 10;
@@ -32,6 +34,12 @@ const Index = () => {
   });
 
   const isHappy = (!inactive && msSince < 8000) || firstLoad;
+  const currentMood = isHappy ? "happy" : (inactive ? "sleep" : "active");
+
+  // Sincronizar mood com contexto global
+  useEffect(() => {
+    setMood(currentMood);
+  }, [currentMood, setMood]);
 
   useEffect(() => {
     if (firstLoad) {
@@ -103,7 +111,7 @@ const Index = () => {
                   "relative z-10 h-full w-full origin-bottom transition-transform duration-500 ease-in-out animate-slide-in-bottom-scaled-centered",
                   cardsExpanded ? "translate-y-[90vh] scale-[0.9]" : "translate-y-0 scale-[0.9]",
                 )}
-                mode={isHappy ? "happy" : (inactive ? "sleep" : "active")}
+                mode={currentMood}
                 title="Nova venda"
               />
             </div>
